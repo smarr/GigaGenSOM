@@ -22,9 +22,6 @@ To scope the project the current set of non-goals includes:
 
 ## To Do
 
-1. Create class and AST structure (possibly based on PySOM)
-2. Generate a basic class file
-3. Generate a main method (#run)
 4. Generate Smalltalk-style methods
    - should size distribution be based on real data?
 
