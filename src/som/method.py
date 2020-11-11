@@ -1,6 +1,14 @@
 from gen.generator import IND
 
 
+def combine_pattern_with_args(selector, args):
+    result = ""
+    name_parts = selector.split(":")
+    for i in range(0, len(name_parts) - 1):
+        result += f"{name_parts[i]}: {args[i]} "
+    return result
+
+
 class Method(object):
 
     def __init__(self, method_name, arguments = None):
@@ -10,13 +18,23 @@ class Method(object):
         self._statements = []
         self._arguments = arguments
 
+    def get_name(self):
+        return self._method_name
+
+    def get_num_arguments(self):
+        return len(self._arguments)
+
     def add_statement(self, expression):
         self._statements.append(expression)
 
     def serialize(self):
-        assert len(self._arguments) == 0, "Haven't yet implemented the other cases"
-
-        body = f"{IND}{self._method_name} = (\n"
+        body = IND
+        if len(self._arguments) == 0:
+            body += f"{self._method_name} = (\n"
+        else:
+            assert ":" in self._method_name, "Haven't yet implemented the other cases"
+            body += combine_pattern_with_args(self._method_name, self._arguments)
+            body += "= (\n"
 
         first = True
         for stmt in self._statements:
