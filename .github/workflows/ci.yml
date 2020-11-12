@@ -30,13 +30,13 @@ jobs:
       - name: Install and Run pylint
         run: |
           pip install pylint
-          pylint src
+          pylint gen som tests main.py
         if: startsWith(matrix.python-version, 'pypy') == false
       
       - name: Install and Run black
         run: |
           pip install black
-          black --check --diff src
+          black --check --diff gen som tests main.py
         if: startsWith(matrix.python-version, 'pypy') == false
       
 
