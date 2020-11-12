@@ -2,8 +2,7 @@ from gen.generator import IND
 
 
 class Class:
-
-    def __init__(self, class_name, super_class, class_class, is_core_class = False):
+    def __init__(self, class_name, super_class, class_class, is_core_class=False):
         self._fields = []
         self._name = class_name
         self._methods = []

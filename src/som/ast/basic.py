@@ -7,7 +7,6 @@ class Expression:
 
 
 class Literal(Expression):
-
     def __init__(self, value):
         self._value = value
 
@@ -23,7 +22,6 @@ class Literal(Expression):
 
 
 class MsgSend(Expression):
-
     def __init__(self, selector, param_exprs):
         self._selector = selector
         self._param_exprs = param_exprs
@@ -42,7 +40,6 @@ class MsgSend(Expression):
 
 
 class Return(Expression):
-
     def __init__(self, expr):
         self._expr = expr
 
@@ -52,7 +49,6 @@ class Return(Expression):
 
 
 class Read(Expression):
-
     def __init__(self, name):
         self._name = name
 

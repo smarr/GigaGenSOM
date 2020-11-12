@@ -40,7 +40,7 @@ class IntegerComputationClassGenerator:
         self._k = k
         self._rand = Random(42)
         self._max_args = 4
-        self._int_ops = ["+", "-", "*", "/", "%", "abs", "negated", "max:"]  #"rem:",
+        self._int_ops = ["+", "-", "*", "/", "%", "abs", "negated", "max:"]  # "rem:",
         self._unary_ops = ["abs", "negated"]
 
     def _generate_base_method(self, index):
@@ -96,7 +96,8 @@ class IntegerComputationClassGenerator:
         num_target_args = sum([t.get_num_arguments() for t in target_methods])
         num_args = self._rand.uniform(
             int(num_target_args / len(target_methods) / 2),
-            int(num_target_args / len(target_methods)))
+            int(num_target_args / len(target_methods)),
+        )
         name, args = generate_method_name_and_args(f"method{index}", num_args)
 
         method = Method(name, args)
@@ -114,7 +115,7 @@ class IntegerComputationClassGenerator:
 
     def _construct_calls(self, expr_stack, method, possible_args, target_methods):
         for target in target_methods:
-            call_args = [Read('self')]
+            call_args = [Read("self")]
 
             for _ in range(0, target.get_num_arguments()):
                 call_args.append(self._pick_operand(expr_stack, possible_args))

@@ -10,8 +10,7 @@ def combine_pattern_with_args(selector, args):
 
 
 class Method:
-
-    def __init__(self, method_name, arguments = None):
+    def __init__(self, method_name, arguments=None):
         if arguments is None:
             arguments = []
         self._method_name = method_name

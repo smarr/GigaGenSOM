@@ -27,11 +27,18 @@ jobs:
       #     nosetests ${{ matrix.coverage }}
       #     (cd rebench && rebench ../rebench.conf e:TestRunner2)
 
-      - name: Install and run pylint
+      - name: Install and Run pylint
         run: |
           pip install pylint
           pylint src
         if: startsWith(matrix.python-version, 'pypy') == false
+      
+      - name: Install and Run black
+        run: |
+          pip install black
+          black --check --diff src
+        if: startsWith(matrix.python-version, 'pypy') == false
+      
 
       # - name: Upload coverage results to Coveralls
       #   run: coveralls
