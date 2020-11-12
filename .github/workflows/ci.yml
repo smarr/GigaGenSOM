@@ -1,0 +1,40 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.8', 'pypy3' ]
+    name: Python ${{ matrix.python-version }}
+    steps:
+      - name: Checkout GigaGenSOM
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      # - name: Install nose
+      #   run: pip install nose
+      #
+      # - name: Run tests
+      #   run: |
+      #     nosetests ${{ matrix.coverage }}
+      #     (cd rebench && rebench ../rebench.conf e:TestRunner2)
+
+      - name: Install and run pylint
+        run: |
+          pip install pylint
+          pylint src
+        if: startsWith(matrix.python-version, 'pypy') == false
+
+      # - name: Upload coverage results to Coveralls
+      #   run: coveralls
+      #   env:
+      #     COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      #   if: matrix.coverage
