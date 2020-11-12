@@ -2,7 +2,7 @@ from gen.generator import IND
 from som.method import combine_pattern_with_args
 
 
-class Expression(object):
+class Expression:
     pass
 
 
@@ -14,12 +14,12 @@ class Literal(Expression):
     def serialize(self, indent):
         indent_str = IND * indent
 
-        if type(self._value) == str:
+        if isinstance(self._value, str):
             return f"'{indent_str}{self._value}'"
-        elif type(self._value) == int:
+        if isinstance(self._value, int):
             return f"{indent_str}{self._value}"
 
-        assert type(self._value) == str, "rest not yet implemented"
+        raise Exception("rest not yet implemented")
 
 
 class MsgSend(Expression):
@@ -34,11 +34,11 @@ class MsgSend(Expression):
 
         if len(self._param_exprs) == 1:
             return f"{indent_str}{rcvr} {self._selector}"
-        elif len(self._param_exprs) == 2:
+        if len(self._param_exprs) == 2:
             return f"{indent_str}{rcvr} {self._selector} ({self._param_exprs[1].serialize(0)})"
-        else:
-            args = [p.serialize(0) for p in self._param_exprs[1:]]
-            return f"{indent_str}({rcvr} {combine_pattern_with_args(self._selector, args)})"
+
+        args = [p.serialize(0) for p in self._param_exprs[1:]]
+        return f"{indent_str}({rcvr} {combine_pattern_with_args(self._selector, args)})"
 
 
 class Return(Expression):

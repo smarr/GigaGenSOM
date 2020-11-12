@@ -2,7 +2,7 @@ from som import object_system
 from som.clazz import Class
 
 
-class EntryPointGenerator(object):
+class EntryPointGenerator:
     def __init__(self, class_name, entry_method):
         self._class_name = class_name
         self._entry_method = entry_method

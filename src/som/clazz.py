@@ -1,7 +1,7 @@
 from gen.generator import IND
 
 
-class Class(object):
+class Class:
 
     def __init__(self, class_name, super_class, class_class, is_core_class = False):
         self._fields = []
@@ -45,19 +45,16 @@ class Class(object):
 
         class_definition = f"{self._name} = {super_class_name}(\n"
         class_end = ")\n"
-        with open(file_name, "w") as f:
-            f.write(class_definition)
+        with open(file_name, "w") as target_file:
+            target_file.write(class_definition)
 
             class_body = self.serialize_body()
-            f.write(class_body)
+            target_file.write(class_body)
 
             if self._class_class:
                 class_class_body = self._class_class.serialize_body()
                 if class_class_body:
-                    f"{IND}----\n\n"
-                    f.write(class_class_body)
+                    target_file.write(f"{IND}----\n\n")
+                    target_file.write(class_class_body)
 
-            f.write(class_end)
-
-
-
+            target_file.write(class_end)
