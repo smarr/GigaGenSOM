@@ -10,7 +10,7 @@ def test_hello(tmp_path):
 
     expected_output = """Hello = (
   run = (
-    ('Hello World!') println
+    'Hello World!' println
   )
 
 )

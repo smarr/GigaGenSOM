@@ -1,11 +1,14 @@
 from gen.generator import IND
+from som.ast.priority import Priority
 
 
 def combine_pattern_with_args(selector, args):
     result = ""
     name_parts = selector.split(":")
     for i in range(0, len(name_parts) - 1):
-        result += f"{name_parts[i]}: {args[i]} "
+        if i > 0:
+            result += " "
+        result += f"{name_parts[i]}: {args[i]}"
     return result
 
 
@@ -33,7 +36,7 @@ class Method:
         else:
             assert ":" in self._method_name, "Haven't yet implemented the other cases"
             body += combine_pattern_with_args(self._method_name, self._arguments)
-            body += "= (\n"
+            body += " = (\n"
 
         first = True
         for stmt in self._statements:
@@ -41,7 +44,7 @@ class Method:
                 body += ".\n"
             else:
                 first = False
-            body += stmt.serialize(2)
+            body += stmt.serialize(Priority.STATEMENT, 2)
 
         body += f"\n{IND})\n"
 

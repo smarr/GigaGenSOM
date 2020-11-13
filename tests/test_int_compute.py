@@ -10,43 +10,43 @@ def test_int_comp(tmp_path):
 
     expected_output = """IntComp = (
   base0: a b: b c: c = (
-    ^ ((c) abs) % ((a) - (b))
+    ^ c abs % (a - b)
   )
 
   base1: a = (
-    ^ (a) + (9195)
+    ^ a + 9195
   )
 
   base2: a = (
-    ^ (a) % (9654)
+    ^ a % 9654
   )
 
   method0: a = (
-    ^ ((self) base2: (5514)) + ((self) base1: (((self) base0: 2615 b: a c: a )))
+    ^ (self base2: 5514) + (self base1: (self base0: 2615 b: a c: a))
   )
 
   method1: a = (
-    ^ ((self) base2: (a)) + ((self) base1: (((self) base0: a b: a c: a )))
+    ^ (self base2: a) + (self base1: (self base0: a b: a c: a))
   )
 
   method2: a = (
-    ^ (((self) base2: (a)) % ((self) base1: (5925))) + (((self) base0: a b: a c: a ))
+    ^ (self base2: a) % (self base1: 5925) + (self base0: a b: a c: a)
   )
 
   method3: a = (
-    ^ (self) base2: ((self) base2: ((self) base2: (a)))
+    ^ self base2: (self base2: (self base2: a))
   )
 
   method4: a = (
-    ^ (((self) base2: (a)) * ((self) base2: (a))) - ((self) base2: (a))
+    ^ (self base2: a) * (self base2: a) - (self base2: a)
   )
 
   method5: a = (
-    ^ ((self) base2: ((self) base2: (a))) - ((self) base2: (1169))
+    ^ (self base2: (self base2: a)) - (self base2: 1169)
   )
 
   run = (
-    ^ ((self) base2: (916)) - ((self) base2: ((self) base2: (9125)))
+    ^ (self base2: 916) - (self base2: (self base2: 9125))
   )
 
 )
