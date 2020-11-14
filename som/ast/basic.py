@@ -4,7 +4,11 @@ from som.method import combine_pattern_with_args
 
 
 class Expression:
-    pass
+    def serialize(self, _priority, _indent):  # pylint: disable=no-self-use
+        return ""
+
+    def __str__(self):
+        return self.serialize(Priority.STATEMENT, 0)
 
 
 class Literal(Expression):
