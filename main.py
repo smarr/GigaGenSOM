@@ -14,5 +14,5 @@ gen = EntryPointGenerator("Hello", m_gen)
 
 gen.serialize(OUTPUT_DIR)
 
-int_gen = IntegerComputationClassGenerator("IntComp", 3)
+int_gen = IntegerComputationClassGenerator("IntComp", 3, 3)
 int_gen.serialize(OUTPUT_DIR)

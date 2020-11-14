@@ -2,7 +2,7 @@ from gen.int_compute_class_gen import IntegerComputationClassGenerator
 
 
 def test_int_comp(tmp_path):
-    int_gen = IntegerComputationClassGenerator("IntComp", 3)
+    int_gen = IntegerComputationClassGenerator("IntComp", 3, 3)
     int_gen.serialize(tmp_path)
 
     with open(str(tmp_path) + "/IntComp.som", "r") as output_file:
@@ -10,43 +10,43 @@ def test_int_comp(tmp_path):
 
     expected_output = """IntComp = (
   base0: a b: b c: c = (
-    ^ c abs % (a - b)
+    ^ c / 4383 % (5564 - c abs + 9) + (c / 2665) * b abs max: a abs % (a - a + 7) % (b + 11)
   )
 
-  base1: a = (
-    ^ a + 9195
+  base1: a b: b = (
+    ^ (b max: 2853) % (a abs * b + 7) - (a - a abs - a)
   )
 
-  base2: a = (
-    ^ a % 9654
+  base2: a b: b = (
+    ^ a - 7567 - b % (966 abs - a * 5205 + 11)
   )
 
-  method0: a = (
-    ^ (self base2: 5514) + (self base1: (self base0: 2615 b: a c: a))
+  method0: a b: b = (
+    ^ (self base2: 6966 b: a) / ((self base1: (self base0: a b: b c: b) b: b) + 10)
   )
 
-  method1: a = (
-    ^ (self base2: a) + (self base1: (self base0: a b: a c: a))
+  method1: a b: b = (
+    ^ (self base2: 2977 b: a) + (self base1: a b: 4365) % ((self base0: 5623 b: b c: b) + 7)
   )
 
-  method2: a = (
-    ^ (self base2: a) % (self base1: 5925) + (self base0: a b: a c: a)
+  method2: a b: b = (
+    ^ self base2: (self base1: (self base0: b b: 5088 c: b) b: b) b: a
   )
 
-  method3: a = (
-    ^ self base2: (self base2: (self base2: a))
+  method3: a b: b = (
+    ^ (self method2: 3345 b: b) / ((self method1: 6982 b: 8885) + 11) / ((self method0: 2755 b: b) + 10)
   )
 
-  method4: a = (
-    ^ (self base2: a) * (self base2: a) - (self base2: a)
+  method4: a b: b = (
+    ^ self method2: (self method1: (self method0: a b: a) b: b) b: b
   )
 
-  method5: a = (
-    ^ (self base2: (self base2: a)) - (self base2: 1169)
+  method5: a b: b = (
+    ^ (self method2: a b: 9490) / ((self method1: b b: b) + 9) - (self method0: a b: b)
   )
 
   run = (
-    ^ (self base2: 916) - (self base2: (self base2: 9125))
+    ^ (self method5: (self method4: 937 b: 1662) b: 1840) - (self method3: 7112 b: 6785)
   )
 
 )
