@@ -57,9 +57,7 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
 
         # produce expressions and consume the arguments
         while remaining_args:
-            operation_i = self._rand.uniform(0, len(self._int_ops) - 1)
-            operation = self._int_ops[int(operation_i)]
-            is_unary = operation in self._unary_ops
+            is_unary, operation = self._determine_operation()
 
             left = self._pick_operand("", expr_stack, remaining_args)
 
@@ -74,11 +72,21 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         method.add_statement(Return(expr_stack[0]))
         return method
 
-    def _combine_expressions(self, expr_stack):
-        while len(expr_stack) > 1:
+    def _determine_operation(self):
+        operation_i = self._rand.uniform(0, len(self._int_ops) - 1)
+        operation = self._int_ops[int(operation_i)]
+
+        # reduce the probability of division operations drastically
+        if operation in self._div_ops:
             operation_i = self._rand.uniform(0, len(self._int_ops) - 1)
             operation = self._int_ops[int(operation_i)]
-            is_unary = operation in self._unary_ops
+
+        is_unary = operation in self._unary_ops
+        return is_unary, operation
+
+    def _combine_expressions(self, expr_stack):
+        while len(expr_stack) > 1:
+            is_unary, operation = self._determine_operation()
 
             if not is_unary:
                 expr = MsgSend(
