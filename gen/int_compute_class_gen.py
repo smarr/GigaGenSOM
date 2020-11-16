@@ -41,9 +41,26 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         self._num_of_base_methods = num_of_base_methods
         self._rand = Random(42)
         self._max_args = 4
-        self._int_ops = ["+", "-", "*", "/", "%", "abs", "negated", "max:", "rem:"]
+        self._int_ops = [
+            "+",
+            "-",
+            "*",
+            "/",
+            "%",
+            "abs",
+            "negated",
+            "min:",
+            "rem:",
+            "as32BitSignedValue",
+            "hashcode",
+        ]  # "as32BitUnsignedValue",
         self._div_ops = ["/", "%", "rem:"]
-        self._unary_ops = ["abs", "negated"]
+        self._unary_ops = [
+            "abs",
+            "negated",
+            "as32BitSignedValue",
+            "hashcode",
+        ]  # "as32BitUnsignedValue",
 
     def _generate_base_method(self, index):
         num_args = self._rand.uniform(0, self._max_args)
