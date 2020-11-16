@@ -110,14 +110,20 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         https://arxiv.org/abs/1709.04421
         """
         if operation in self._div_ops:
-            return MsgSend("+", [expr, Literal(self._rand.randint(6, 11))])
+            return MsgSend("-", [expr, Literal(self._rand.randint(31, 63))])
         return expr
 
     def _pick_operand(self, operation, expr_stack, remaining_args):
-        use_expr_probability = 25
-        use_arg_probability = 10
-        consume_arg_probability = 40
-        use_literal_probability = 25
+        if operation in self._div_ops:
+            use_expr_probability = 0
+            use_arg_probability = 0
+            consume_arg_probability = 0
+            use_literal_probability = 100
+        else:
+            use_expr_probability = 25
+            use_arg_probability = 10
+            consume_arg_probability = 40
+            use_literal_probability = 25
         assert (
             use_arg_probability
             + use_expr_probability
@@ -139,7 +145,7 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         # we can't assert that action >= 0, because we may not have args to use
         assert action <= use_literal_probability
 
-        return Literal(self._rand.randint(50, 10000))
+        return Literal(self._rand.randint(0, 1000))
 
     def _generate_method(self, target_methods, index):
         num_targets = self._rand.randint(1, 3)
