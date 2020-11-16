@@ -1,7 +1,7 @@
 from random import Random
 
 from som import object_system
-from som.ast.basic import Literal, MsgSend, Return, Read
+from som.ast.basic import Literal, MsgSend, Return, Read, Write
 from som.clazz import Class
 from som.method import Method
 
@@ -67,36 +67,41 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
                 right = self._pick_operand(operation, expr_stack, remaining_args)
                 expr_stack.append(MsgSend(operation, [left, right]))
 
-        self._combine_expressions(expr_stack)
-
-        method.add_statement(Return(expr_stack[0]))
+        self._combine_expressions(method, expr_stack)
         return method
 
-    def _determine_operation(self):
+    def _determine_operation(self, no_div=False):
         operation_i = self._rand.uniform(0, len(self._int_ops) - 1)
         operation = self._int_ops[int(operation_i)]
 
-        # reduce the probability of division operations drastically
-        if operation in self._div_ops:
-            operation_i = self._rand.uniform(0, len(self._int_ops) - 1)
-            operation = self._int_ops[int(operation_i)]
+        if no_div:
+            while operation in self._div_ops:
+                operation_i = self._rand.uniform(0, len(self._int_ops) - 1)
+                operation = self._int_ops[int(operation_i)]
 
         is_unary = operation in self._unary_ops
         return is_unary, operation
 
-    def _combine_expressions(self, expr_stack):
-        while len(expr_stack) > 1:
-            is_unary, operation = self._determine_operation()
+    def _combine_expressions(self, method, expr_stack):
+        local = method.get_unused_local()
+        write = Write(local, Literal(self._rand.randint(1, 10)))
+        method.add_statement(write)
+
+        while len(expr_stack) > 0:
+            is_unary, operation = self._determine_operation(True)
+
+            operands = [Read(local)]
 
             if not is_unary:
-                expr = MsgSend(
-                    operation,
-                    [
-                        expr_stack.pop(),
-                        self._add_constant_for_div_op(operation, expr_stack.pop()),
-                    ],
+                operands.append(
+                    self._add_constant_for_div_op(operation, expr_stack.pop())
                 )
-                expr_stack.append(expr)
+
+            expr = MsgSend(operation, operands)
+            write = Write(local, expr)
+            method.add_statement(write)
+
+        method.add_statement(Return(Read(local)))
 
     def _add_constant_for_div_op(self, operation, expr):
         """
@@ -137,10 +142,18 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         return Literal(self._rand.randint(50, 10000))
 
     def _generate_method(self, target_methods, index):
-        num_target_args = sum([t.get_num_arguments() for t in target_methods])
+        num_targets = self._rand.randint(1, 3)
+
+        targets = [target_methods.pop()]
+        while len(targets) < num_targets and target_methods:
+            targets.append(
+                target_methods[self._rand.randint(0, len(target_methods) - 1)]
+            )
+
+        num_target_args = sum([t.get_num_arguments() for t in targets])
         num_args = self._rand.uniform(
-            int(num_target_args / len(target_methods) / 2),
-            int(num_target_args / len(target_methods)),
+            int(num_target_args / len(targets) / 2),
+            int(num_target_args / len(targets)),
         )
         name, args = generate_method_name_and_args(f"method{index}", num_args)
 
@@ -154,10 +167,11 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
 
         expr_stack = []
 
-        self._construct_calls(expr_stack, method, possible_args, target_methods)
+        self._construct_calls(expr_stack, possible_args, targets)
+        self._combine_expressions(method, expr_stack)
         return method
 
-    def _construct_calls(self, expr_stack, method, possible_args, target_methods):
+    def _construct_calls(self, expr_stack, possible_args, target_methods):
         for target in target_methods:
             call_args = [Read("self")]
 
@@ -167,13 +181,26 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
                 )
 
             expr_stack.append(MsgSend(target.get_name(), call_args))
-        self._combine_expressions(expr_stack)
-        method.add_statement(Return(expr_stack[0]))
 
-    def _generate_run_method(self, target_methods):
+    def _generate_run_method(self, clazz, target_methods):
         method = Method("run")
 
-        self._construct_calls([], method, [], target_methods)
+        expr_stack = []
+        self._construct_calls(expr_stack, [], target_methods)
+
+        max_statements_in_method = 30
+        i = 1
+        while len(expr_stack) > max_statements_in_method:
+            run_helper = Method(f"runHelper{i}")
+            part = expr_stack[:max_statements_in_method]
+            expr_stack = expr_stack[max_statements_in_method:]
+            self._combine_expressions(run_helper, part)
+            clazz.add_method(run_helper)
+            self._construct_calls(expr_stack, [], [run_helper])
+            i += 1
+
+        self._combine_expressions(method, expr_stack)
+        clazz.add_method(method)
         return method
 
     def serialize(self, target_directory):
@@ -191,13 +218,13 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
 
         method_i = 0
         for i in range(1, self._call_stack_height):
+            target_methods = method_matrix[i - 1][:]
+            self._rand.shuffle(target_methods)
             for j in range(0, self._num_of_base_methods):
-                method = self._generate_method(method_matrix[i - 1], method_i)
+                method = self._generate_method(target_methods, method_i)
                 clazz.add_method(method)
                 method_matrix[i][j] = method
                 method_i += 1
 
-        clazz.add_method(
-            self._generate_run_method(method_matrix[self._call_stack_height - 1])
-        )
+        self._generate_run_method(clazz, method_matrix[self._call_stack_height - 1])
         clazz.serialize(target_directory)

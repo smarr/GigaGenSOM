@@ -19,6 +19,13 @@ class Method:
         self._method_name = method_name
         self._statements = []
         self._arguments = arguments
+        self._locals = []
+
+    def get_unused_local(self):
+        num_locals = len(self._locals)
+        new_local = f"l{(num_locals + 1)}"
+        self._locals.append(new_local)
+        return new_local
 
     def get_name(self):
         return self._method_name
@@ -37,6 +44,12 @@ class Method:
             assert ":" in self._method_name, "Haven't yet implemented the other cases"
             body += combine_pattern_with_args(self._method_name, self._arguments)
             body += " = (\n"
+
+        if self._locals:
+            body += f"{IND}{IND}| "
+            for local in self._locals:
+                body += f"{local} "
+            body += "|\n"
 
         first = True
         for stmt in self._statements:

@@ -87,3 +87,14 @@ class Read(Expression):
     def serialize(self, _priority, indent):
         indent_str = IND * indent
         return f"{indent_str}{self._name}"
+
+
+class Write(Expression):
+    def __init__(self, name, expr):
+        self._name = name
+        self._expr = expr
+
+    def serialize(self, _priority, indent):
+        indent_str = IND * indent
+        val_expr = self._expr.serialize(Priority.STATEMENT, 0)
+        return f"{indent_str}{self._name} := {val_expr}"
