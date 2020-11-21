@@ -62,11 +62,11 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
             "hashcode",
         ]  # "as32BitUnsignedValue",
 
-    def _generate_base_method(self, index):
+    def _generate_base_method(self, clazz, index):
         num_args = self._rand.uniform(0, self._max_args)
         name, args = generate_method_name_and_args(f"base{index}", num_args)
 
-        method = Method(name, args)
+        method = Method(name, clazz, args)
 
         remaining_args = args[:]
         self._rand.shuffle(remaining_args)
@@ -164,7 +164,7 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
 
         return Literal(self._rand.randint(0, 1000))
 
-    def _generate_method(self, target_methods, index):
+    def _generate_method(self, clazz, target_methods, index):
         num_targets = self._rand.randint(1, 3)
 
         targets = [target_methods.pop()]
@@ -180,7 +180,7 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         )
         name, args = generate_method_name_and_args(f"method{index}", num_args)
 
-        method = Method(name, args)
+        method = Method(name, clazz, args)
 
         possible_args = []
         while len(possible_args) < num_target_args:
@@ -206,21 +206,10 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
             expr_stack.append(MsgSend(target.get_name(), call_args))
 
     def _generate_run_method(self, clazz, target_methods):
-        method = Method("run")
+        method = Method("run", clazz)
 
         expr_stack = []
         self._construct_calls(expr_stack, [], target_methods)
-
-        max_statements_in_method = 30
-        i = 1
-        while len(expr_stack) > max_statements_in_method:
-            run_helper = Method(f"runHelper{i}")
-            part = expr_stack[:max_statements_in_method]
-            expr_stack = expr_stack[max_statements_in_method:]
-            self._combine_expressions(run_helper, part)
-            clazz.add_method(run_helper)
-            self._construct_calls(expr_stack, [], [run_helper])
-            i += 1
 
         self._combine_expressions(method, expr_stack)
         clazz.add_method(method)
@@ -235,7 +224,7 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         ]
 
         for i in range(0, self._num_of_base_methods):
-            base_method = self._generate_base_method(i)
+            base_method = self._generate_base_method(clazz, i)
             method_matrix[0][i] = base_method
             clazz.add_method(base_method)
 
@@ -244,7 +233,7 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
             target_methods = method_matrix[i - 1][:]
             self._rand.shuffle(target_methods)
             for j in range(0, self._num_of_base_methods):
-                method = self._generate_method(target_methods, method_i)
+                method = self._generate_method(clazz, target_methods, method_i)
                 clazz.add_method(method)
                 method_matrix[i][j] = method
                 method_i += 1

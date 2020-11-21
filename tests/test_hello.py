@@ -3,7 +3,7 @@ from gen.method_gen import create_method_print_string
 
 
 def test_hello(tmp_path):
-    m_gen = create_method_print_string("run", "Hello World!")
+    m_gen = create_method_print_string("run", None, "Hello World!")
     gen = EntryPointGenerator("Hello", m_gen)
 
     gen.serialize(tmp_path)
