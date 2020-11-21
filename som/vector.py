@@ -1,7 +1,7 @@
 from som.ast.basic import Array, Read, Literal, MsgSend, Write, Return
-from som.method import Method, MAX_STATEMENTS_IN_METHOD
+from som.method import Method, get_max_statements_in_method
 
-_MAX_LITERALS = 64
+_MAX_LITERALS = 50
 
 
 def create_vector_or_array(values, target_class, factory_name):
@@ -27,7 +27,7 @@ def create_vector_or_array(values, target_class, factory_name):
         helper_m.add_statement(MsgSend("append:", [Read("vector"), val]))
         stmt_cnt += 1
 
-        if stmt_cnt == MAX_STATEMENTS_IN_METHOD:
+        if stmt_cnt == get_max_statements_in_method():
             i += 1
             helper_m = _new_helper(factory_m, factory_name, i, target_class, vector)
             stmt_cnt = 0

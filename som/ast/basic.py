@@ -4,10 +4,12 @@ from som.util import combine_pattern_with_args
 
 
 class Expression:
-    def serialize(self, _priority, _self_indent, _nested_indent):  # pylint: disable=no-self-use
+    def serialize(
+        self, _priority, _self_indent, _nested_indent
+    ):  # pylint: disable=no-self-use
         return ""
 
-    def is_newline(self):
+    def is_newline(self):  # pylint: disable=no-self-use
         return False
 
     def __str__(self):
@@ -41,7 +43,7 @@ class Raw(Expression):
 class Literal(Expression):
     def __init__(self, value):
         assert value is not None
-        assert isinstance(value, int) or isinstance(value, str)
+        assert isinstance(value, (int, str))
         self._value = value
 
     def serialize(self, _priority, self_indent, _nested_indent):
@@ -111,7 +113,9 @@ class MsgSend(Expression):
                 # this avoids having parentheses around the left hand side expression
                 # of a binary message, e.g. to get this result: 1 + 3 - (1 + 3)
                 # link: `test_binary_message_sends_to_binary`
-                rcvr = self._param_exprs[0].serialize(Priority.KEYWORD, 0, nested_indent)
+                rcvr = self._param_exprs[0].serialize(
+                    Priority.KEYWORD, 0, nested_indent
+                )
             else:
                 rcvr = self._param_exprs[0].serialize(msg_kind, 0, nested_indent)
             arg = self._param_exprs[1].serialize(msg_kind, 0, nested_indent)

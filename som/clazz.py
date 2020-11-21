@@ -5,7 +5,10 @@ class Class:
     def __init__(self, class_name, super_class, class_class, is_core_class=False):
         self._fields = []
         self._name = class_name
-        self._methods = []
+
+        self._unserialized_methods = []
+        self._serialized_methods = []
+
         self._class_comment = None
         self._super_class = super_class
         self._class_class = class_class
@@ -15,7 +18,7 @@ class Class:
         return self._name
 
     def add_method(self, method):
-        self._methods.append(method)
+        self._unserialized_methods.append(method)
 
     def serialize_body(self):
         body = ""
@@ -26,11 +29,13 @@ class Class:
                 body += f" {field}"
             body += " |\n\n"
 
-        for method in self._methods:
+        while self._unserialized_methods:
+            method = self._unserialized_methods.pop(0)
             method_body = method.serialize()
             if method_body:
                 body += method_body
                 body += "\n"
+            self._serialized_methods.append(method)
 
         return body
 

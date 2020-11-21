@@ -3,8 +3,26 @@ from som.ast.basic import MsgSend, Read
 from som.ast.priority import Priority
 from som.util import combine_pattern_with_args
 
-MAX_STATEMENTS_IN_METHOD = 30
-_DESIRED_STATEMENTS_IN_METHOD = 20
+_max_statements_in_method: int = 30
+_desired_statements_in_method: int = 20
+
+
+def get_max_statements_in_method():
+    return _max_statements_in_method
+
+
+def set_max_statements_in_method(val):
+    global _max_statements_in_method  # pylint: disable=global-statement,invalid-name
+    _max_statements_in_method = val
+
+
+def get_desired_statements_in_method():
+    return _desired_statements_in_method
+
+
+def set_desired_statements_in_method(val):
+    global _desired_statements_in_method  # pylint: disable=global-statement,invalid-name
+    _desired_statements_in_method = val
 
 
 class Method:
@@ -17,7 +35,7 @@ class Method:
         self._arguments = arguments
         self._locals = []
 
-        self._helpers_split_out = 0
+        self._helper_methods = []
 
     def get_unused_local(self):
         num_locals = len(self._locals)
@@ -31,34 +49,67 @@ class Method:
     def get_num_arguments(self):
         return len(self._arguments)
 
-    def _split_out_helper_method_if_too_long(self):
-        if len(self._statements) < MAX_STATEMENTS_IN_METHOD or len(self._arguments) > 0:
-            return
+    def _turn_into_helpers(self, statements):
+        new_helpers = []
+        while statements:
+            # remove empty lines at the top
+            while statements and statements[0].is_newline():
+                statements.pop(0)
 
-        end = MAX_STATEMENTS_IN_METHOD
-        for i in range(len(self._statements) - 1, 1, -1):
-            if self._statements[i].is_newline():
-                if i > _DESIRED_STATEMENTS_IN_METHOD:
+            if not statements:
+                break
+
+            end = self._find_logic_break(statements)
+
+            split_stmts = statements[:end]
+            remaining = statements[end:]
+
+            helper = Method(
+                f"helper_{self._method_name}{len(self._helper_methods) + 1}",
+                self._holder_class,
+            )
+            for stmt in split_stmts:
+                helper.add_statement(stmt)
+
+            self._helper_methods.append(helper)
+            new_helpers.append(helper)
+
+            self._holder_class.add_method(helper)
+            statements = remaining
+
+        return new_helpers
+
+    @staticmethod
+    def _find_logic_break(statements):
+        # use new lines as logical dividers, and try to find one close to the max size for methods
+        end = min(len(statements), _max_statements_in_method)
+        for i in range(end - 1, 1, -1):
+            if statements[i].is_newline():
+                if i > _desired_statements_in_method:
                     end = i
                     break
-
-        split_stmts = self._statements[:end]
-        remaining = self._statements[end:]
-
-        self._helpers_split_out += 1
-        method = Method(f"helper_{self._method_name}{self._helpers_split_out}", self._holder_class)
-        for stmt in split_stmts:
-            method.add_statement(stmt)
-
-        self._holder_class.add_method(method)
-        self._statements = remaining
-        self._statements.insert(0, MsgSend(method.get_name(), [Read("self")]))
+        return end
 
     def add_statement(self, expression):
-        self._split_out_helper_method_if_too_long()
         self._statements.append(expression)
 
+    def _split_into_helpers_if_needed(self):
+        if (
+            len(self._statements) <= _max_statements_in_method
+            or len(self._arguments) > 0
+        ):
+            return False
+
+        helpers = self._turn_into_helpers(self._statements)
+        self._statements = [
+            MsgSend(helper.get_name(), [Read("self")]) for helper in helpers
+        ]
+        return True
+
     def serialize(self, _priority=Priority.STATEMENT, self_indent=1, nested_indent=1):
+        while self._split_into_helpers_if_needed():
+            pass
+
         indent_str = IND * self_indent
         body = indent_str
         body = self._serialize_method_pattern(body)
@@ -68,6 +119,12 @@ class Method:
             for local in self._locals:
                 body += f"{local} "
             body += "|\n"
+
+        # remove empty lines at start and end
+        while self._statements[0].is_newline():
+            self._statements.pop(0)
+        while self._statements[-1].is_newline():
+            self._statements.pop()
 
         suppress_terminator = True
         for stmt in self._statements:
@@ -81,7 +138,9 @@ class Method:
                 suppress_terminator = True
                 continue
 
-            body += stmt.serialize(Priority.STATEMENT, nested_indent + 1, nested_indent + 1)
+            body += stmt.serialize(
+                Priority.STATEMENT, nested_indent + 1, nested_indent + 1
+            )
 
         body = self._serialize_method_closing(body)
 
@@ -96,7 +155,7 @@ class Method:
             body += " = (\n"
         return body
 
-    def _serialize_method_closing(self, body):
+    def _serialize_method_closing(self, body):  # pylint: disable=no-self-use
         return body + f"\n{IND})\n"
 
 
