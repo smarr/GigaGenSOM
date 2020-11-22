@@ -75,22 +75,15 @@ _DEFAULT_VAL_SETS = {
 }
 
 
-def _determine_values(value_set_name, value_sets):
-    if value_set_name in value_sets:
-        return value_sets[value_set_name][:]
-    val_set_name = value_set_name.strip()
-    val_set_name = val_set_name.replace("{", "")
-    val_set_name = val_set_name.replace("}", "")
-    val_set_names = val_set_name.split(",")
-
+def _determine_values(value_set_names, value_sets):
     values = []
-    for vals in val_set_names:
+    for vals in value_set_names:
         vals = vals.strip()
         if vals in value_sets:
             values = values + value_sets[vals][:]
 
     if not values:
-        raise Exception("Did not find value set named: " + value_set_name)
+        raise Exception("Did not find value set named: " + value_set_names)
     return values
 
 
@@ -123,14 +116,29 @@ class _Variable:
 
 
 class _Specification:
-    def __init__(self, name, spec, value_sets=None, **kwargs):
+    def __init__(self, name, clazz, spec, value_sets=None, **kwargs):
         self._test_name = name
+        self._class_name = clazz
         self._spec = spec
+
+        self._config = kwargs
         self._value_sets = value_sets if value_sets else _DEFAULT_VAL_SETS
         self._test_vars = [
             _construct_variable(name, val_set, self._value_sets)
-            for name, val_set in kwargs.items()
+            for name, val_set in self._config.items()
         ]
+
+    def get_name(self):
+        return self._test_name
+
+    def get_class_name(self):
+        return self._class_name
+
+    def get_body(self):
+        return self._spec
+
+    def get_config(self):
+        return self._config
 
     def _process_trivial_tests(self):
         lines = self._spec.split("\n")
@@ -289,20 +297,28 @@ class _Specification:
 
 
 class SpecificationTestGenerator:
-    def __init__(self, class_name):
-        self._class_name = class_name
+    def __init__(self):
         self._specs = []
 
-    def add_specification(self, name, spec, value_sets=None, **kwargs):
-        self._specs.append(_Specification(name, spec, value_sets, **kwargs))
+    def get_specifications(self):
+        return self._specs
+
+    def add_specification(self, name, clazz, spec, value_sets=None, **kwargs):
+        self._specs.append(_Specification(name, clazz, spec, value_sets, **kwargs))
 
     def serialize(self, target_directory):
         rand = Random(42)
-        clazz = Class(
-            self._class_name, object_system.Specification, object_system.Empty
-        )
 
-        for spec in self._specs:
-            spec.serialize(clazz, rand)
+        # separate specs
+        specs = {}
+        for s in self._specs:
+            if s.get_class_name() not in specs:
+                specs[s.get_class_name()] = []
+            specs[s.get_class_name()].append(s)
 
-        clazz.serialize(target_directory)
+        for clazz_name, spec_in_class in specs.items():
+            clazz = Class(clazz_name, object_system.Specification, object_system.Empty)
+            for spec in self._specs:
+                spec.serialize(clazz, rand)
+
+            clazz.serialize(target_directory)

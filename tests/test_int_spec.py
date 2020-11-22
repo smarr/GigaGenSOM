@@ -4,12 +4,13 @@ from tests.util import read_file
 
 def test_int_add_spec(tmp_path):
     spec = {
+        "clazz": "IntSpec",
         "name": "intAddition",
         "spec": """ 3 + 4 = 7.
                     -4 + 3 = -1.
                     """,
     }
-    spec_gen = SpecificationTestGenerator("IntSpec")
+    spec_gen = SpecificationTestGenerator()
     spec_gen.add_specification(**spec)
     spec_gen.serialize(tmp_path)
 
@@ -28,13 +29,14 @@ def test_int_add_spec(tmp_path):
 
 def test_double_add_spec(tmp_path):
     spec = {
+        "clazz": "IntSpec",
         "name": "doubleAddition",
         "spec": """self expect:  3 + 4.4 toEqual:  7.4 within: 0.00000001.
                     self expect: -4 + 3.3 toEqual: -0.7 within: 0.00000001.
                     """,
     }
 
-    spec_gen = SpecificationTestGenerator("IntSpec")
+    spec_gen = SpecificationTestGenerator()
     spec_gen.add_specification(**spec)
     spec_gen.serialize(tmp_path)
 
@@ -53,15 +55,16 @@ def test_double_add_spec(tmp_path):
 
 def test_int_add_inc(tmp_path):
     spec = {
+        "clazz": "IntSpec",
         "name": "intAddIncreases",
-        "int": "allIntVals",
+        "int": ["allIntVals"],
         "spec": """int + 1 > int.
                     self expect: int + 1 toBeKindOf: Integer.
                     """,
         "value_sets": {"allIntVals": ["0", "-1", "333"]},
     }
 
-    spec_gen = SpecificationTestGenerator("IntSpec")
+    spec_gen = SpecificationTestGenerator()
     spec_gen.add_specification(**spec)
     spec_gen.serialize(tmp_path)
 
@@ -114,9 +117,10 @@ def test_int_add_inc(tmp_path):
 
 def test_add_symmetric(tmp_path):
     spec = {
+        "clazz": "IntSpec",
         "name": "intAddSymmetric",
-        "int": "allIntVals",
-        "arg": "{allIntVals, allDoubleVals}",
+        "int": ["allIntVals"],
+        "arg": ["allIntVals", "allDoubleVals"],
         "spec": """int + arg = (arg + int).
                     self expect: int + arg toBeKindOf: arg class.
                     """,
@@ -126,7 +130,7 @@ def test_add_symmetric(tmp_path):
         },
     }
 
-    spec_gen = SpecificationTestGenerator("IntSpec")
+    spec_gen = SpecificationTestGenerator()
     spec_gen.add_specification(**spec)
     spec_gen.serialize(tmp_path)
 
