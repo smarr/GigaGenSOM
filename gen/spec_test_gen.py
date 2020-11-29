@@ -8,6 +8,8 @@ from som.method import Method, Block
 from som.vector import create_vector_or_array
 
 _DEFAULT_VAL_SETS = {
+    "oneOfEachBasicType": ["true", "false", "#foo", "123", "0.123", "'string'", "#(1 2)",
+                           "[ 42 ]", "nil", "Object new"],
     "allIntVals": [
         "0",
         "-0",
