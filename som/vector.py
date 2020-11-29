@@ -6,7 +6,7 @@ _MAX_LITERALS = 50
 
 def contains_only_numbers(values):
     for value in values:
-        if not str(value)[0].isnumeric():
+        if not str(value)[0].isnumeric() and not str(value)[0] == "-":
             return False
     return True
 
