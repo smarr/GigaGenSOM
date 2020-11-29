@@ -107,6 +107,8 @@ class Method:
         return True
 
     def serialize(self, _priority=Priority.STATEMENT, self_indent=1, nested_indent=1):
+        assert self._statements
+
         while self._split_into_helpers_if_needed():
             pass
 

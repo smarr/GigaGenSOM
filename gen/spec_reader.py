@@ -27,6 +27,9 @@ class SpecificationReader:
     def get_specs(self):
         return self._spec_gen.get_specifications()
 
+    def serialize(self, target_directory):
+        self._spec_gen.serialize(target_directory)
+
     def read_spec(self):
         try:
             if self._file_path:

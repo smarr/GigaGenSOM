@@ -1,8 +1,9 @@
 import re
 from random import Random
+from typing import List
 
 from som import object_system
-from som.ast.basic import Raw, Newline, MsgSend
+from som.ast.basic import Raw, Newline, MsgSend, Write, Read, Return
 from som.clazz import Class
 from som.method import Method, Block
 from som.vector import create_vector_or_array
@@ -89,15 +90,15 @@ def _determine_values(value_set_names, value_sets):
     return values
 
 
-def _construct_variable(name, value_set_name, value_sets):
+def _construct_variable(name: str, value_set_name: List[str], value_sets):
     values = _determine_values(value_set_name, value_sets)
     return _Variable(name, value_set_name, values)
 
 
 class _Variable:
-    def __init__(self, name, value_set_name, values):
+    def __init__(self, name: str, value_sets_names: List[str], values: List[str]):
         self._name = name
-        self._name_of_value_set = value_set_name
+        self._names_of_value_sets = value_sets_names
         self._values = values
         self._regex = re.compile(r"\b" + name + r"\b")
 
@@ -115,6 +116,17 @@ class _Variable:
 
     def get_values(self):
         return self._values
+
+    def get_constructor_method_name(self, val_handling: str):
+        names = self._names_of_value_sets[:]
+        names.sort()
+
+        for i, name in enumerate(names):
+            names[i] = name[0].upper() + name[1:]
+
+        name = "".join(names)
+
+        return f"createVector{val_handling}{name}"
 
 
 class _Specification:
@@ -231,7 +243,7 @@ class _Specification:
             do_msg = MsgSend("do:", [values, current_block])
 
             if test_vars:
-                current_var = test_vars.pop()
+                current_var: _Variable = test_vars.pop()
                 current_block = Block(target_class, [current_var.get_name()])
                 current_block.add_statement(do_msg)
             else:
@@ -246,7 +258,7 @@ class _Specification:
         return method
 
     @staticmethod
-    def _construct_receiver(current_var, rand, target_class, val_handling):
+    def _construct_receiver(current_var: _Variable, rand, target_class: Class, val_handling: str):
         # construct the receiver, the argument with literal values
         var_values = current_var.get_values()
         if val_handling == "Backwards":
@@ -256,11 +268,10 @@ class _Specification:
         elif val_handling == "ShuffledTwice":
             rand.shuffle(var_values)
             rand.shuffle(var_values)
-        var_name = current_var.get_name()
         values = create_vector_or_array(
             [Raw(val) for val in var_values],
             target_class,
-            f"createVector{val_handling}{var_name[0].upper()}{var_name[1:]}",
+            current_var.get_constructor_method_name(val_handling),
         )
         return values
 
@@ -319,6 +330,7 @@ class SpecificationTestGenerator:
 
         # separate specs
         specs = {}
+        classes = []
         for s in self._specs:
             if s.get_class_name() not in specs:
                 specs[s.get_class_name()] = []
@@ -326,7 +338,29 @@ class SpecificationTestGenerator:
 
         for clazz_name, spec_in_class in specs.items():
             clazz = Class(clazz_name, object_system.Specification, object_system.Empty)
-            for spec in self._specs:
+            for spec in spec_in_class:
                 spec.serialize(clazz, rand)
 
             clazz.serialize(target_directory)
+            classes.append(clazz)
+
+        self._generate_harness(classes, target_directory)
+
+    @staticmethod
+    def _generate_harness(classes, target_directory):
+        harness = Class("AllSpecs", object_system.TestHarness, object_system.Empty)
+
+        # override #tests method
+        tests_method = Method("tests", harness)
+        harness.add_method(tests_method)
+
+        vector = tests_method.get_unused_local()
+
+        tests_method.add_statement(Write(vector, MsgSend("new", [Read("Vector")])))
+
+        for clazz in classes:
+            tests_method.add_statement(MsgSend("append:", [Read(vector), Read(clazz.get_name())]))
+
+        tests_method.add_statement(Return(Read(vector)))
+
+        harness.serialize(target_directory)
