@@ -74,14 +74,18 @@ def test_int_add_inc(tmp_path):
 
     expected_output = """IntSpec = Specification (
   testIntAddIncreasesLiteral = (
-    self expect: 0 + 1  toBeGreaterThan:  0.
-    self expect: 0 + 1 toBeKindOf: Integer.
+    | int |
+    int := 0.
+    self expect: int + 1  toBeGreaterThan:  int.
+    self expect: int + 1 toBeKindOf: Integer.
 
-    self expect: -1 + 1  toBeGreaterThan:  -1.
-    self expect: -1 + 1 toBeKindOf: Integer.
+    int := -1.
+    self expect: int + 1  toBeGreaterThan:  int.
+    self expect: int + 1 toBeKindOf: Integer.
 
-    self expect: 333 + 1  toBeGreaterThan:  333.
-    self expect: 333 + 1 toBeKindOf: Integer
+    int := 333.
+    self expect: int + 1  toBeGreaterThan:  int.
+    self expect: int + 1 toBeKindOf: Integer
   )
 
   testIntAddIncreasesLoop = (
@@ -141,8 +145,10 @@ def test_add_symmetric(tmp_path):
 
     expected_output = """IntSpec = Specification (
   testIntAddSymmetricLiteral = (
+    | int arg |
     self helper_testIntAddSymmetricLiteral1.
-    self helper_testIntAddSymmetricLiteral2
+    self helper_testIntAddSymmetricLiteral2.
+    self helper_testIntAddSymmetricLiteral3
   )
 
   testIntAddSymmetricLoop = (
@@ -174,61 +180,128 @@ def test_add_symmetric(tmp_path):
   )
 
   helper_testIntAddSymmetricLiteral1 = (
-    self expect: 0 + 0  toEqual:  (0 + 0).
-    self expect: 0 + 0 toBeKindOf: 0 class.
+    | int arg |
+    int := 0.
+    arg := 0.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
 
-    self expect: 0 + -1  toEqual:  (-1 + 0).
-    self expect: 0 + -1 toBeKindOf: -1 class.
+    int := 0.
+    arg := -1.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
 
-    self expect: 0 + 333  toEqual:  (333 + 0).
-    self expect: 0 + 333 toBeKindOf: 333 class.
+    int := 0.
+    arg := 333.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
 
-    self expect: 0 + 0.0  toEqual:  (0.0 + 0).
-    self expect: 0 + 0.0 toBeKindOf: 0.0 class.
+    int := 0.
+    arg := 0.0.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
 
-    self expect: 0 + -1.2  toEqual:  (-1.2 + 0).
-    self expect: 0 + -1.2 toBeKindOf: -1.2 class.
+    int := 0.
+    arg := -1.2.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
 
-    self expect: 0 + 3.3  toEqual:  (3.3 + 0).
-    self expect: 0 + 3.3 toBeKindOf: 3.3 class.
-
-    self expect: -1 + 0  toEqual:  (0 + -1).
-    self expect: -1 + 0 toBeKindOf: 0 class.
-
-    self expect: -1 + -1  toEqual:  (-1 + -1).
-    self expect: -1 + -1 toBeKindOf: -1 class.
-
-    self expect: -1 + 333  toEqual:  (333 + -1).
-    self expect: -1 + 333 toBeKindOf: 333 class.
-
-    self expect: -1 + 0.0  toEqual:  (0.0 + -1).
-    self expect: -1 + 0.0 toBeKindOf: 0.0 class
+    int := 0.
+    arg := 3.3.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class
   )
 
   helper_testIntAddSymmetricLiteral2 = (
-    self expect: -1 + -1.2  toEqual:  (-1.2 + -1).
-    self expect: -1 + -1.2 toBeKindOf: -1.2 class.
+    | int arg |
+    self helper_helper_testIntAddSymmetricLiteral21.
+    self helper_helper_testIntAddSymmetricLiteral22
+  )
 
-    self expect: -1 + 3.3  toEqual:  (3.3 + -1).
-    self expect: -1 + 3.3 toBeKindOf: 3.3 class.
+  helper_testIntAddSymmetricLiteral3 = (
+    | int arg |
+    self helper_helper_testIntAddSymmetricLiteral31.
+    self helper_helper_testIntAddSymmetricLiteral32
+  )
 
-    self expect: 333 + 0  toEqual:  (0 + 333).
-    self expect: 333 + 0 toBeKindOf: 0 class.
+  helper_helper_testIntAddSymmetricLiteral21 = (
+    | int arg |
+    int := 0.
+    arg := 3.3.
+    int := -1.
+    arg := 0.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
 
-    self expect: 333 + -1  toEqual:  (-1 + 333).
-    self expect: 333 + -1 toBeKindOf: -1 class.
+    int := -1.
+    arg := -1.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
 
-    self expect: 333 + 333  toEqual:  (333 + 333).
-    self expect: 333 + 333 toBeKindOf: 333 class.
+    int := -1.
+    arg := 333.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
 
-    self expect: 333 + 0.0  toEqual:  (0.0 + 333).
-    self expect: 333 + 0.0 toBeKindOf: 0.0 class.
+    int := -1.
+    arg := 0.0.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
 
-    self expect: 333 + -1.2  toEqual:  (-1.2 + 333).
-    self expect: 333 + -1.2 toBeKindOf: -1.2 class.
+    int := -1.
+    arg := -1.2.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class
+  )
 
-    self expect: 333 + 3.3  toEqual:  (3.3 + 333).
-    self expect: 333 + 3.3 toBeKindOf: 3.3 class
+  helper_helper_testIntAddSymmetricLiteral22 = (
+    | int arg |
+    int := -1.
+    arg := -1.2.
+    int := -1.
+    arg := 3.3.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class
+  )
+
+  helper_helper_testIntAddSymmetricLiteral31 = (
+    | int arg |
+    int := -1.
+    arg := 3.3.
+    int := 333.
+    arg := 0.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
+
+    int := 333.
+    arg := -1.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
+
+    int := 333.
+    arg := 333.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
+
+    int := 333.
+    arg := 0.0.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
+
+    int := 333.
+    arg := -1.2.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class
+  )
+
+  helper_helper_testIntAddSymmetricLiteral32 = (
+    | int arg |
+    int := 333.
+    arg := -1.2.
+    int := 333.
+    arg := 3.3.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class
   )
 
 )"""
