@@ -4,8 +4,15 @@ from som.method import Method, get_max_statements_in_method
 _MAX_LITERALS = 50
 
 
+def contains_only_numbers(values):
+    for value in values:
+        if not str(value)[0].isnumeric():
+            return False
+    return True
+
+
 def create_vector_or_array(values, target_class, factory_name):
-    if len(values) <= _MAX_LITERALS:
+    if len(values) <= _MAX_LITERALS and contains_only_numbers(values):
         return Array(values)
 
     # Otherwise we create a factory method for a Vector
