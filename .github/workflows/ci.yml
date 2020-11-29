@@ -20,7 +20,7 @@ jobs:
           architecture: x64
 
       - name: Install PyTest
-        run: pip install pytest pytest-clarity
+        run: pip install six pytest pytest-clarity
 
       - name: Run tests
         run: |
