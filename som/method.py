@@ -37,6 +37,13 @@ class Method:
 
         self._helper_methods = []
 
+    def add_locals(self, variables):
+        for var in variables:
+            self._locals.append(var.get_name())
+
+    def add_local_by_name(self, name):
+        self._locals.append(name)
+
     def get_unused_local(self):
         num_locals = len(self._locals)
         new_local = f"l{(num_locals + 1)}"
@@ -49,7 +56,7 @@ class Method:
     def get_num_arguments(self):
         return len(self._arguments)
 
-    def _turn_into_helpers(self, statements):
+    def _turn_into_helpers(self, statements, spec_store):
         new_helpers = []
         while statements:
             # remove empty lines at the top
@@ -61,13 +68,25 @@ class Method:
 
             end = self._find_logic_break(statements)
 
+            start_spec_store = spec_store.copy()
+
             split_stmts = statements[:end]
+
+            for stmt in split_stmts:
+                stmt.update_spec_store(spec_store)
+
             remaining = statements[end:]
 
             helper = Method(
                 f"helper_{self._method_name}{len(self._helper_methods) + 1}",
                 self._holder_class,
             )
+            for local in self._locals:
+                helper.add_local_by_name(local)
+
+            for write in start_spec_store.values():
+                helper.add_statement(write)
+
             for stmt in split_stmts:
                 helper.add_statement(stmt)
 
@@ -93,14 +112,14 @@ class Method:
     def add_statement(self, expression):
         self._statements.append(expression)
 
-    def _split_into_helpers_if_needed(self):
+    def _split_into_helpers_if_needed(self, spec_store):
         if (
             len(self._statements) <= _max_statements_in_method
             or len(self._arguments) > 0
         ):
             return False
 
-        helpers = self._turn_into_helpers(self._statements)
+        helpers = self._turn_into_helpers(self._statements, spec_store)
         self._statements = [
             MsgSend(helper.get_name(), [Read("self")]) for helper in helpers
         ]
@@ -109,7 +128,8 @@ class Method:
     def serialize(self, _priority=Priority.STATEMENT, self_indent=1, nested_indent=1):
         assert self._statements
 
-        while self._split_into_helpers_if_needed():
+        spec_store = {}
+        while self._split_into_helpers_if_needed(spec_store):
             pass
 
         indent_str = IND * self_indent

@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from gen.spec_types import SPEC_PART_MARKER, SPEC_FULL_MARKER
 from som import object_system
-from som.ast.basic import Raw, Newline, MsgSend, Write, Read, Return
+from som.ast.basic import Raw, Newline, MsgSend, Write, Read, Return, SpecVariableWrite
 from som.clazz import Class
 from som.method import Method, Block
 from som.vector import create_vector_or_array
@@ -113,14 +113,8 @@ class _Variable:
         self._values = values
         self._regex = re.compile(r"\b" + name + r"\b")
 
-    def get_regex(self):
-        return self._regex
-
     def is_in(self, string):
         return self._regex.search(string) is not None
-
-    def substitute(self, string, value):
-        return self._regex.sub(value, string)
 
     def get_name(self):
         return self._name
@@ -205,7 +199,7 @@ class _Specification:
         return False
 
     def _gen_literal_permutations(
-        self, method, processed_lines, set_vars, var_values, remaining_vars
+        self, method, processed_lines, set_vars: List[_Variable], var_values, remaining_vars
     ):
         if remaining_vars:
             var = remaining_vars[0]
@@ -220,9 +214,9 @@ class _Specification:
                     remaining_vars,
                 )
         else:
+            for v_idx, var in enumerate(set_vars):
+                method.add_statement(SpecVariableWrite(var.get_name(), Raw(var_values[v_idx])))
             for line in processed_lines:
-                for v_idx, var in enumerate(set_vars):
-                    line = var.substitute(line, var_values[v_idx])
                 method.add_statement(Raw(line))
             method.add_statement(Newline())
 
@@ -232,6 +226,7 @@ class _Specification:
 
         test_name = f"test{self._test_name[0].upper()}{self._test_name[1:]}Literal"
         method = Method(test_name, clazz)
+        method.add_locals(self._test_vars)
 
         self._gen_literal_permutations(
             method, processed_lines, [], [], self._test_vars[:]

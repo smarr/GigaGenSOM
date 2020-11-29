@@ -12,6 +12,9 @@ class Expression:
     def is_newline(self):  # pylint: disable=no-self-use
         return False
 
+    def update_spec_store(self, method):
+        pass
+
     def __str__(self):
         return self.serialize(Priority.STATEMENT, 0, 0)
 
@@ -152,3 +155,8 @@ class Write(Expression):
         indent_str = IND * self_indent
         val_expr = self._expr.serialize(Priority.STATEMENT, 0, nested_indent + 2)
         return f"{indent_str}{self._name} := {val_expr}"
+
+
+class SpecVariableWrite(Write):
+    def update_spec_store(self, store):
+        store[self._name] = self
