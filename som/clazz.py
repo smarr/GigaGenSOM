@@ -8,6 +8,7 @@ class Class:
 
         self._unserialized_methods = []
         self._serialized_methods = []
+        self._method_dict = {}
 
         self._class_comment = None
         self._super_class = super_class
@@ -18,7 +19,14 @@ class Class:
         return self._name
 
     def add_method(self, method):
+        if method.get_name() in self._method_dict:
+            raise Exception(
+                f"{self._name} has more than one method with the name {method.get_name()}")
+        self._method_dict[method.get_name()] = method
         self._unserialized_methods.append(method)
+
+    def has_method(self, method_name):
+        return method_name in self._method_dict
 
     def serialize_body(self):
         body = ""

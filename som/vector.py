@@ -15,6 +15,9 @@ def create_vector_or_array(values, target_class, factory_name):
     if len(values) <= _MAX_LITERALS and contains_only_numbers(values):
         return Array(values)
 
+    if target_class.has_method(factory_name):
+        return MsgSend(factory_name, [Read("self")])
+
     # Otherwise we create a factory method for a Vector
     factory_m = Method(factory_name, target_class)
     target_class.add_method(factory_m)
