@@ -55,7 +55,11 @@ class SpecificationReader:
 
         for i, line in enumerate(lines):
             trimmed = line.lstrip()
-            if trimmed.startswith(SPEC_MARKER) or trimmed.startswith(SPEC_PART_MARKER) or trimmed.startswith(SPEC_FULL_MARKER):
+            if (
+                trimmed.startswith(SPEC_MARKER)
+                or trimmed.startswith(SPEC_PART_MARKER)
+                or trimmed.startswith(SPEC_FULL_MARKER)
+            ):
                 collect_lines = True
             elif trimmed.startswith(_END_FENCE):
                 collect_lines = False
@@ -73,7 +77,9 @@ class SpecificationReader:
         spec_header = spec_lines[0]
         spec_body = "\n".join(spec_lines[1:])
 
-        name, clazz, remaining_args, spec_type = self._parse_header(spec_header, start_line)
+        name, clazz, remaining_args, spec_type = self._parse_header(
+            spec_header, start_line
+        )
 
         if clazz not in self._class_method_dict:
             self._class_method_dict[clazz] = {}
@@ -85,10 +91,16 @@ class SpecificationReader:
             )
 
         self._class_method_dict[clazz][name] = True
-        self._spec_gen.add_specification(name, clazz, spec_body, spec_type, **remaining_args)
+        self._spec_gen.add_specification(
+            name, clazz, spec_body, spec_type, **remaining_args
+        )
 
     def _parse_header(self, spec_header, line_no):
-        assert spec_header.startswith(SPEC_MARKER) or spec_header.startswith(SPEC_PART_MARKER) or spec_header.startswith(SPEC_FULL_MARKER)
+        assert (
+            spec_header.startswith(SPEC_MARKER)
+            or spec_header.startswith(SPEC_PART_MARKER)
+            or spec_header.startswith(SPEC_FULL_MARKER)
+        )
         if spec_header.startswith(SPEC_MARKER):
             spec_type = SPEC_MARKER
         elif spec_header.startswith(SPEC_PART_MARKER):
@@ -99,10 +111,14 @@ class SpecificationReader:
         remaining_spec = spec_header[len(spec_type) :]
 
         if spec_type == SPEC_FULL_MARKER:
-            remaining_spec, clazz = self._parse_only_class(remaining_spec, line_no, spec_header)
+            remaining_spec, clazz = self._parse_only_class(
+                remaining_spec, line_no, spec_header
+            )
             name = None
         else:
-            remaining_spec, clazz = self._parse_class(remaining_spec, line_no, spec_header)
+            remaining_spec, clazz = self._parse_class(
+                remaining_spec, line_no, spec_header
+            )
             remaining_spec, name = self._parse_name(remaining_spec)
 
         if spec_type == SPEC_MARKER:
@@ -124,10 +140,18 @@ class SpecificationReader:
         return name, clazz, args, spec_type
 
     def _parse_class(self, spec, line_no, full_line):
-        return self._parse_class_with_terminator(spec, ".", "Expected class to be part of spec name. It uses the `class.method` notation.", line_no, full_line)
+        return self._parse_class_with_terminator(
+            spec,
+            ".",
+            "Expected class to be part of spec name. It uses the `class.method` notation.",
+            line_no,
+            full_line,
+        )
 
     def _parse_only_class(self, spec, line_no, full_line):
-        remaining_spec, clazz = self._parse_class_with_terminator(spec, "}", "Expected class to be part of spec name.", line_no, full_line)
+        remaining_spec, clazz = self._parse_class_with_terminator(
+            spec, "}", "Expected class to be part of spec name.", line_no, full_line
+        )
         # we consumed the } already, but we want to check it still
         return "}" + remaining_spec, clazz
 
@@ -139,7 +163,7 @@ class SpecificationReader:
         assert term_pos > 1
 
         clazz = spec[:term_pos]
-        remaining_spec = spec[term_pos + 1:]
+        remaining_spec = spec[term_pos + 1 :]
         return remaining_spec, clazz.strip()
 
     @staticmethod

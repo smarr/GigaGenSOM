@@ -12,7 +12,7 @@ class Expression:
     def is_newline(self):  # pylint: disable=no-self-use
         return False
 
-    def update_spec_store(self, method):
+    def update_spec_store(self, store):
         pass
 
     def __str__(self):

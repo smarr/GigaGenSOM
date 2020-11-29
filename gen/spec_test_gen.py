@@ -199,7 +199,12 @@ class _Specification:
         return False
 
     def _gen_literal_permutations(
-        self, method, processed_lines, set_vars: List[_Variable], var_values, remaining_vars
+        self,
+        method,
+        processed_lines,
+        set_vars: List[_Variable],
+        var_values,
+        remaining_vars,
     ):
         if remaining_vars:
             var = remaining_vars[0]
@@ -215,7 +220,9 @@ class _Specification:
                 )
         else:
             for v_idx, var in enumerate(set_vars):
-                method.add_statement(SpecVariableWrite(var.get_name(), Raw(var_values[v_idx])))
+                method.add_statement(
+                    SpecVariableWrite(var.get_name(), Raw(var_values[v_idx]))
+                )
             for line in processed_lines:
                 method.add_statement(Raw(line))
             method.add_statement(Newline())
@@ -350,7 +357,15 @@ class SpecificationTestGenerator:
     def get_specifications(self):
         return self._specs
 
-    def add_specification(self, name: str, clazz: str, spec_body: str, spec_type: str, value_sets=None, **kwargs):
+    def add_specification(
+        self,
+        name: str,
+        clazz: str,
+        spec_body: str,
+        spec_type: str,
+        value_sets=None,
+        **kwargs,
+    ):
         if spec_type == SPEC_PART_MARKER:
             consumed = False
             for spec in self._specs:
@@ -359,11 +374,14 @@ class SpecificationTestGenerator:
                     consumed = True
             if not consumed:
                 raise Exception(
-                    f"Spec {clazz}.{name} defined as part, but no {clazz}.{name} main spec found.")
+                    f"Spec {clazz}.{name} defined as part, but no {clazz}.{name} main spec found."
+                )
         elif spec_type == SPEC_FULL_MARKER:
             self._specs.append(_FullSpecification(clazz, spec_body))
         else:
-            self._specs.append(_Specification(name, clazz, spec_body, value_sets, **kwargs))
+            self._specs.append(
+                _Specification(name, clazz, spec_body, value_sets, **kwargs)
+            )
 
     def serialize(self, target_directory):
         rand = Random(42)
