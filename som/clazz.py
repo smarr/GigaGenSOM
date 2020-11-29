@@ -21,7 +21,8 @@ class Class:
     def add_method(self, method):
         if method.get_name() in self._method_dict:
             raise Exception(
-                f"{self._name} has more than one method with the name {method.get_name()}")
+                f"{self._name} has more than one method with the name {method.get_name()}"
+            )
         self._method_dict[method.get_name()] = method
         self._unserialized_methods.append(method)
 

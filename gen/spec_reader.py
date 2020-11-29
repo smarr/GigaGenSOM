@@ -8,6 +8,7 @@ _END_FENCE = "```"
 
 class ParseError(Exception):
     def __init__(self, msg, line_no, line_text):
+        super().__init__()
         self.msg = msg
         self.line_no = line_no
         self.line_text = line_text
@@ -37,12 +38,15 @@ class SpecificationReader:
                     self._process_spec(output_file)
             else:
                 self._process_spec(self._input_str.split("\n"))
-        except ParseError as e:
+        except ParseError as parse_e:
             if self._file_path:
                 file_path = self._file_path
             else:
                 file_path = "<str>"
-            print(f"{file_path}:{e.line_no}: {e.msg}\n\t{e.line_text}", file=sys.stderr)
+            print(
+                f"{file_path}:{parse_e.line_no}: {parse_e.msg}\n\t{parse_e.line_text}",
+                file=sys.stderr,
+            )
             sys.exit(1)
 
     def _process_spec(self, lines):
@@ -61,7 +65,9 @@ class SpecificationReader:
             if collect_lines:
                 spec_lines.append(line)
 
-        assert not spec_lines, "We expect specs to be closed, and thus no spec_lines here"
+        assert (
+            not spec_lines
+        ), "We expect specs to be closed, and thus no spec_lines here"
 
     def _parse_spec(self, spec_lines, start_line):
         spec_header = spec_lines[0]
@@ -72,26 +78,31 @@ class SpecificationReader:
         if clazz not in self._class_method_dict:
             self._class_method_dict[clazz] = {}
         if name in self._class_method_dict[clazz]:
-            raise ParseError(f"There are multiple {clazz}.{name} specifications",
-                             start_line, spec_header)
-        else:
-            self._class_method_dict[clazz][name] = True
+            raise ParseError(
+                f"There are multiple {clazz}.{name} specifications",
+                start_line,
+                spec_header,
+            )
 
+        self._class_method_dict[clazz][name] = True
         self._spec_gen.add_specification(name, clazz, spec_body, **remaining_args)
 
     def _parse_header(self, spec_header, line_no):
         assert spec_header.startswith(_SPEC_MARKER)
-        remaining_spec = spec_header[len(_SPEC_MARKER):]
+        remaining_spec = spec_header[len(_SPEC_MARKER) :]
         remaining_spec, clazz = self._parse_class(remaining_spec, line_no, spec_header)
         remaining_spec, name = self._parse_name(remaining_spec)
         remaining_spec, remaining_args = self._parse_remaining_args(remaining_spec)
         if remaining_spec.strip() != "}":
-            raise ParseError("The specification is expected to start with `{` and end with `}`.",
-                             line_no, spec_header)
+            raise ParseError(  # pylint: disable=raising-format-tuple
+                "The specification is expected to start with `{` and end with `}`.",
+                line_no,
+                spec_header,
+            )
 
         args = {}
-        for (k, v) in remaining_args:
-            args[k] = v
+        for (key, value) in remaining_args:
+            args[key] = value
 
         return name, clazz, args
 
@@ -101,11 +112,13 @@ class SpecificationReader:
         if dot_idx < 1:
             raise ParseError(
                 "Expected class to be part of spec name. It uses the `class.method` notation.",
-                line_no, full_line)
+                line_no,
+                full_line,
+            )
         assert dot_idx > 1
 
         clazz = spec[:dot_idx]
-        remaining_spec = spec[dot_idx + 1:]
+        remaining_spec = spec[dot_idx + 1 :]
         return remaining_spec, clazz.strip()
 
     @staticmethod
@@ -127,13 +140,13 @@ class SpecificationReader:
             return spec, []
 
         var_name = spec[:equal_idx].strip()
-        remaining_spec = spec[equal_idx + 1:]
+        remaining_spec = spec[equal_idx + 1 :]
 
         if remaining_spec[0] == "{":
             group_end = remaining_spec.find("}")
             values = remaining_spec[1:group_end].split(",")
             values = [v.strip() for v in values]
-            remaining_spec = remaining_spec[group_end + 1:].strip()
+            remaining_spec = remaining_spec[group_end + 1 :].strip()
             if remaining_spec[0] == ",":
                 remaining_spec = remaining_spec[1:]
         else:

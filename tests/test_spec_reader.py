@@ -20,8 +20,11 @@ Test
 
     assert spec.get_name() == "intAddition"
     assert spec.get_class_name() == "IntSpec"
-    assert spec.get_body() == """ 3 + 4 = 7.
+    assert (
+        spec.get_body()
+        == """ 3 + 4 = 7.
 -4 + 3 = -1."""
+    )
 
 
 def test_two_specs():

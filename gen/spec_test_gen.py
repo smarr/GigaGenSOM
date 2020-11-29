@@ -9,8 +9,18 @@ from som.method import Method, Block
 from som.vector import create_vector_or_array
 
 _DEFAULT_VAL_SETS = {
-    "oneOfEachBasicType": ["true", "false", "#foo", "123", "0.123", "'string'", "#(1 2)",
-                           "[ 42 ]", "nil", "Object new"],
+    "oneOfEachBasicType": [
+        "true",
+        "false",
+        "#foo",
+        "123",
+        "0.123",
+        "'string'",
+        "#(1 2)",
+        "[ 42 ]",
+        "nil",
+        "Object new",
+    ],
     "allIntVals": [
         "0",
         "-0",
@@ -258,7 +268,9 @@ class _Specification:
         return method
 
     @staticmethod
-    def _construct_receiver(current_var: _Variable, rand, target_class: Class, val_handling: str):
+    def _construct_receiver(
+        current_var: _Variable, rand, target_class: Class, val_handling: str
+    ):
         # construct the receiver, the argument with literal values
         var_values = current_var.get_values()
         if val_handling == "Backwards":
@@ -331,10 +343,10 @@ class SpecificationTestGenerator:
         # separate specs
         specs = {}
         classes = []
-        for s in self._specs:
-            if s.get_class_name() not in specs:
-                specs[s.get_class_name()] = []
-            specs[s.get_class_name()].append(s)
+        for spec in self._specs:
+            if spec.get_class_name() not in specs:
+                specs[spec.get_class_name()] = []
+            specs[spec.get_class_name()].append(spec)
 
         for clazz_name, spec_in_class in specs.items():
             clazz = Class(clazz_name, object_system.Specification, object_system.Empty)
@@ -359,7 +371,9 @@ class SpecificationTestGenerator:
         tests_method.add_statement(Write(vector, MsgSend("new", [Read("Vector")])))
 
         for clazz in classes:
-            tests_method.add_statement(MsgSend("append:", [Read(vector), Read(clazz.get_name())]))
+            tests_method.add_statement(
+                MsgSend("append:", [Read(vector), Read(clazz.get_name())])
+            )
 
         tests_method.add_statement(Return(Read(vector)))
 
