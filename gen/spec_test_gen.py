@@ -1,7 +1,8 @@
 import re
 from random import Random
-from typing import List
+from typing import List, Optional
 
+from gen.spec_types import SPEC_PART_MARKER, SPEC_FULL_MARKER
 from som import object_system
 from som.ast.basic import Raw, Newline, MsgSend, Write, Read, Return
 from som.clazz import Class
@@ -50,7 +51,7 @@ _DEFAULT_VAL_SETS = {
         "-170141183460469231731687303715884105729",  # 127-bit
         "-340282366920938463463374607431768211456",
         "-340282366920938463463374607431768211457",  # 128-bit
-        # one very large number, droken into parts
+        # one very large number, broken into parts
         "135066410865995223349603216278805969938881475605667027524485143851526510604"
         + "859533833940287150571909441798207282164471551373680419703964191743046496589"
         + "274256239341020864383202110372958725762358509643110564073501508187510676594"
@@ -164,6 +165,9 @@ class _Specification:
     def get_config(self):
         return self._config
 
+    def append_part(self, spec: str):
+        self._spec += spec
+
     def _process_trivial_tests(self):
         lines = self._spec.split("\n")
         processed_lines = []
@@ -253,7 +257,7 @@ class _Specification:
             do_msg = MsgSend("do:", [values, current_block])
 
             if test_vars:
-                current_var: _Variable = test_vars.pop()
+                current_var: Optional[_Variable] = test_vars.pop()
                 current_block = Block(target_class, [current_var.get_name()])
                 current_block.add_statement(do_msg)
             else:
@@ -327,6 +331,23 @@ class _Specification:
             target_class.add_method(method)
 
 
+class _FullSpecification:
+    def __init__(self, clazz: str, spec: str):
+        self._class_name = clazz
+        self._spec = spec
+
+    def get_class_name(self):
+        return self._class_name
+
+    def get_body(self):
+        return self._spec
+
+    def serialize(self, target_class: Class, _rand):
+        assert target_class.get_name() == self._class_name
+        assert target_class.get_number_of_methods() == 0
+        target_class.set_full_spec(self._spec)
+
+
 class SpecificationTestGenerator:
     def __init__(self):
         self._specs = []
@@ -334,8 +355,20 @@ class SpecificationTestGenerator:
     def get_specifications(self):
         return self._specs
 
-    def add_specification(self, name, clazz, spec, value_sets=None, **kwargs):
-        self._specs.append(_Specification(name, clazz, spec, value_sets, **kwargs))
+    def add_specification(self, name: str, clazz: str, spec_body: str, spec_type: str, value_sets=None, **kwargs):
+        if spec_type == SPEC_PART_MARKER:
+            consumed = False
+            for spec in self._specs:
+                if spec.get_class_name() == clazz and spec.get_name() == name:
+                    spec.append_part(spec_body)
+                    consumed = True
+            if not consumed:
+                raise Exception(
+                    f"Spec {clazz}.{name} defined as part, but no {clazz}.{name} main spec found.")
+        elif spec_type == SPEC_FULL_MARKER:
+            self._specs.append(_FullSpecification(clazz, spec_body))
+        else:
+            self._specs.append(_Specification(name, clazz, spec_body, value_sets, **kwargs))
 
     def serialize(self, target_directory):
         rand = Random(42)

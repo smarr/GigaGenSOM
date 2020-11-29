@@ -15,10 +15,14 @@ class Class:
         self._class_class = class_class
         self._is_core_class = is_core_class
 
+        self._full_spec = None
+
     def get_name(self):
         return self._name
 
     def add_method(self, method):
+        assert self._full_spec is None
+
         if method.get_name() in self._method_dict:
             raise Exception(
                 f"{self._name} has more than one method with the name {method.get_name()}"
@@ -29,7 +33,17 @@ class Class:
     def has_method(self, method_name):
         return method_name in self._method_dict
 
+    def get_number_of_methods(self):
+        return len(self._method_dict)
+
+    def set_full_spec(self, full_spec):
+        assert self._full_spec is None
+        assert full_spec is not None
+        self._full_spec = full_spec
+
     def serialize_body(self):
+        assert self._full_spec is None
+
         body = ""
 
         if self._fields:
@@ -48,8 +62,18 @@ class Class:
 
         return body
 
+    def _serialize_full_spec(self, file_name):
+        assert len(self._method_dict) == 0
+        with open(file_name, "w") as target_file:
+            target_file.write(self._full_spec)
+
     def serialize(self, target_directory):
         file_name = f"{target_directory}/{self._name}.som"
+
+        if self._full_spec:
+            self._serialize_full_spec(file_name)
+            return
+
         super_class_name = self._super_class.get_name()
         if super_class_name == "Object":
             super_class_name = ""

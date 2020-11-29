@@ -1,4 +1,5 @@
 from gen.spec_test_gen import SpecificationTestGenerator
+from gen.spec_types import SPEC_MARKER
 from tests.util import read_file
 
 
@@ -6,7 +7,8 @@ def test_int_add_spec(tmp_path):
     spec = {
         "clazz": "IntSpec",
         "name": "intAddition",
-        "spec": """ 3 + 4 = 7.
+        "spec_type": SPEC_MARKER,
+        "spec_body": """ 3 + 4 = 7.
                     -4 + 3 = -1.
                     """,
     }
@@ -31,7 +33,8 @@ def test_double_add_spec(tmp_path):
     spec = {
         "clazz": "IntSpec",
         "name": "doubleAddition",
-        "spec": """self expect:  3 + 4.4 toEqual:  7.4 within: 0.00000001.
+        "spec_type": SPEC_MARKER,
+        "spec_body": """self expect:  3 + 4.4 toEqual:  7.4 within: 0.00000001.
                     self expect: -4 + 3.3 toEqual: -0.7 within: 0.00000001.
                     """,
     }
@@ -57,8 +60,9 @@ def test_int_add_inc(tmp_path):
     spec = {
         "clazz": "IntSpec",
         "name": "intAddIncreases",
+        "spec_type": SPEC_MARKER,
         "int": ["allIntVals"],
-        "spec": """int + 1 > int.
+        "spec_body": """int + 1 > int.
                     self expect: int + 1 toBeKindOf: Integer.
                     """,
         "value_sets": {"allIntVals": ["0", "-1", "333"]},
@@ -119,9 +123,10 @@ def test_add_symmetric(tmp_path):
     spec = {
         "clazz": "IntSpec",
         "name": "intAddSymmetric",
+        "spec_type": SPEC_MARKER,
         "int": ["allIntVals"],
         "arg": ["allIntVals", "allDoubleVals"],
-        "spec": """int + arg = (arg + int).
+        "spec_body": """int + arg = (arg + int).
                     self expect: int + arg toBeKindOf: arg class.
                     """,
         "value_sets": {
