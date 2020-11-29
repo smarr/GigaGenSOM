@@ -144,6 +144,12 @@ class _Specification:
         lines = self._spec.split("\n")
         processed_lines = []
         for line in lines:
+            if "==" in line:
+                parts = line.split("==")
+                assert len(parts) == 2
+                processed_lines.append(f"self expect: {parts[0]} toBe: {parts[1]}\n")
+                continue
+
             if "=" in line:
                 parts = line.split("=")
                 assert len(parts) == 2
