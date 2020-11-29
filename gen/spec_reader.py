@@ -63,7 +63,7 @@ class SpecificationReader:
                 spec_lines = []
 
             if collect_lines:
-                spec_lines.append(line)
+                spec_lines.append(line.rstrip())
 
         assert (
             not spec_lines

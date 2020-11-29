@@ -66,6 +66,7 @@ class Class:
         assert len(self._method_dict) == 0
         with open(file_name, "w") as target_file:
             target_file.write(self._full_spec)
+            target_file.write("\n")
 
     def serialize(self, target_directory):
         file_name = f"{target_directory}/{self._name}.som"

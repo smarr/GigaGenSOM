@@ -160,7 +160,7 @@ class _Specification:
         return self._config
 
     def append_part(self, spec: str):
-        self._spec += spec
+        self._spec += "\n" + spec
 
     def _process_trivial_tests(self):
         lines = self._spec.split("\n")
