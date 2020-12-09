@@ -1,7 +1,7 @@
-from som import object_system
-from som.ast.basic import MsgSend, Read, Newline
-from som.clazz import Class
-from som.method import (
+from gen.som import object_system
+from gen.som.ast.basic import MsgSend, Read, Newline
+from gen.som.clazz import Class
+from gen.som.method import (
     Method,
     set_max_statements_in_method,
     set_desired_statements_in_method,

@@ -1,6 +1,6 @@
 import pytest
 
-from som.ast.basic import Priority, Literal, Read, Return, MsgSend
+from gen.som.ast.basic import Priority, Literal, Read, Return, MsgSend
 
 
 @pytest.mark.parametrize("priority", list(Priority))

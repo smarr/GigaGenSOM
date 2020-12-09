@@ -1,4 +1,4 @@
-from som.clazz import Class
+from gen.som.clazz import Class
 
 Object = Class("Object", None, None, True)
 Specification = Class("Specification", None, None, True)

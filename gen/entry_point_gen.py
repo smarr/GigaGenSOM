@@ -1,5 +1,5 @@
-from som import object_system
-from som.clazz import Class
+from gen.som import object_system
+from gen.som.clazz import Class
 
 
 class EntryPointGenerator:
