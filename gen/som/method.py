@@ -90,6 +90,8 @@ class Method:
             for stmt in split_stmts:
                 helper.add_statement(stmt)
 
+            helper.remove_redundant_writes()
+
             self._helper_methods.append(helper)
             new_helpers.append(helper)
 
@@ -111,6 +113,14 @@ class Method:
 
     def add_statement(self, expression):
         self._statements.append(expression)
+
+    def remove_redundant_writes(self):
+        store = {}
+        without_redundant = []
+        for stmt in self._statements:
+            if not stmt.is_redundant(store, without_redundant):
+                without_redundant.append(stmt)
+        self._statements = without_redundant
 
     def _split_into_helpers_if_needed(self, spec_store):
         if (

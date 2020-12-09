@@ -246,6 +246,7 @@ class _Specification:
         self._gen_literal_permutations(
             method, processed_lines, [], [], self._test_vars[:]
         )
+        method.remove_redundant_writes()
         return method
 
     def _gen_loop(self, target_class, processed_lines, val_handling, rand):
