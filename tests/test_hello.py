@@ -1,5 +1,6 @@
 from gen.entry_point_gen import EntryPointGenerator
 from gen.method_gen import create_method_print_string
+from tests.util import read_file, assert_runs_to_completion
 
 
 def test_hello(tmp_path):
@@ -16,7 +17,6 @@ def test_hello(tmp_path):
 )
 """
 
-    with open(str(tmp_path) + "/Hello.som", "r") as output_file:
-        actual_output = "".join(output_file.readlines())
-
+    actual_output = read_file(tmp_path, "Hello.som")
     assert expected_output == actual_output
+    assert_runs_to_completion(tmp_path, "Hello")

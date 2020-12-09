@@ -3,11 +3,19 @@ from random import Random
 from typing import List, Optional
 
 from gen.spec_types import SPEC_PART_MARKER, SPEC_FULL_MARKER
-from som import object_system
-from som.ast.basic import Raw, Newline, MsgSend, Write, Read, Return, SpecVariableWrite
-from som.clazz import Class
-from som.method import Method, Block
-from som.vector import create_vector_or_array
+from gen.som import object_system
+from gen.som.ast.basic import (
+    Raw,
+    Newline,
+    MsgSend,
+    Write,
+    Read,
+    Return,
+    SpecVariableWrite,
+)
+from gen.som.clazz import Class
+from gen.som.method import Method, Block
+from gen.som.vector import create_vector_or_array
 
 _DEFAULT_VAL_SETS = {
     "oneOfEachBasicType": [

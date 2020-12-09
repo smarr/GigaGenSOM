@@ -1,9 +1,9 @@
 from random import Random
 
-from som import object_system
-from som.ast.basic import Literal, MsgSend, Return, Read, Write
-from som.clazz import Class
-from som.method import Method
+from gen.som import object_system
+from gen.som.ast.basic import Literal, MsgSend, Return, Read, Write
+from gen.som.clazz import Class
+from gen.som.method import Method
 
 
 def generate_method_name_and_args(prefix, num_args):

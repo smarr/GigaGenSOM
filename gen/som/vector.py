@@ -1,5 +1,5 @@
-from som.ast.basic import Array, Read, Literal, MsgSend, Write, Return
-from som.method import Method, get_max_statements_in_method
+from gen.som.ast.basic import Array, Read, Literal, MsgSend, Write, Return
+from gen.som.method import Method, get_max_statements_in_method
 
 _MAX_LITERALS = 50
 

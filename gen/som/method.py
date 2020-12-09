@@ -1,7 +1,7 @@
 from gen.generator import IND
-from som.ast.basic import MsgSend, Read
-from som.ast.priority import Priority
-from som.util import combine_pattern_with_args
+from gen.som.ast.basic import MsgSend, Read
+from gen.som.ast.priority import Priority
+from gen.som.util import combine_pattern_with_args
 
 _max_statements_in_method: int = 30
 _desired_statements_in_method: int = 20

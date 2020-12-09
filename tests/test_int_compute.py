@@ -1,12 +1,12 @@
 from gen.int_compute_class_gen import IntegerComputationClassGenerator
+from tests.util import read_file, assert_runs_to_completion
 
 
 def test_int_comp(tmp_path):
     int_gen = IntegerComputationClassGenerator("IntComp", 3, 3)
     int_gen.serialize(tmp_path)
 
-    with open(str(tmp_path) + "/IntComp.som", "r") as output_file:
-        actual_output = "".join(output_file.readlines())
+    actual_output = read_file(tmp_path, "IntComp.som")
 
     expected_output = """IntComp = (
   base0: a b: b c: c = (
@@ -98,3 +98,4 @@ def test_int_comp(tmp_path):
 """
 
     assert expected_output == actual_output
+    assert_runs_to_completion(tmp_path, "IntComp")
