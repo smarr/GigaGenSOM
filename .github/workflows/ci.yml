@@ -18,13 +18,17 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+        
+      - name: Load PySOM for tests
+        run: |
+          tests/get-pysom.sh
 
       - name: Install PyTest
         run: pip install six pytest pytest-clarity
 
       - name: Run tests
         run: |
-          pytest
+          SOM_INTERP=AST PYTHONPATH=.pysom/src pytest
 
       - name: Install and Run PyLint
         run: |
