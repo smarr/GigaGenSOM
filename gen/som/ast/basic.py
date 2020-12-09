@@ -15,6 +15,11 @@ class Expression:
     def update_spec_store(self, store):
         pass
 
+    def is_redundant(  # pylint: disable=no-self-use
+        self, store, statements  # pylint: disable=unused-argument
+    ):
+        return False
+
     def __str__(self):
         return self.serialize(Priority.STATEMENT, 0, 0)
 
@@ -25,6 +30,9 @@ class Newline(Expression):
 
     def serialize(self, _priority, _self_indent, _nested_indent):
         return "\n"
+
+    def is_redundant(self, store, statements):
+        return statements[-1].is_newline()
 
 
 class Raw(Expression):
@@ -151,6 +159,9 @@ class Write(Expression):
         self._name = name
         self._expr = expr
 
+    def get_name(self):
+        return self._name
+
     def serialize(self, _priority, self_indent, nested_indent):
         indent_str = IND * self_indent
         val_expr = self._expr.serialize(Priority.STATEMENT, 0, nested_indent + 2)
@@ -160,3 +171,31 @@ class Write(Expression):
 class SpecVariableWrite(Write):
     def update_spec_store(self, store):
         store[self._name] = self
+
+    def expr_as_str(self):
+        return self._expr.serialize(Priority.STATEMENT, 0, 0)
+
+    def _store_already_done(self, store):
+        if self._name not in store:
+            return False
+        if self.expr_as_str() == store[self._name].expr_as_str():
+            return True
+        return False
+
+    def _remove_unused_previous_write(self, statements):
+        i = len(statements) - 1
+        while i >= 0:
+            stmt = statements[i]
+            if isinstance(stmt, SpecVariableWrite) and stmt.get_name() == self._name:
+                statements.pop(i)
+            elif not stmt.is_newline():
+                # any other statement but a newline will consume the writes
+                # and we simply return (this is precise enough for now...)
+                return
+            i -= 1
+
+    def is_redundant(self, store, statements):
+        is_done = self._store_already_done(store)
+        store[self._name] = self
+        self._remove_unused_previous_write(statements)
+        return is_done
