@@ -37,6 +37,12 @@ class Method:
 
         self._helper_methods = []
 
+    def get_unused_field(self):
+        return self._holder_class.get_unused_field()
+
+    def add_field_if_not_present(self, field_name):
+        return self._holder_class.add_field_if_not_present(field_name)
+
     def add_locals(self, variables):
         for var in variables:
             self._locals.append(var.get_name())

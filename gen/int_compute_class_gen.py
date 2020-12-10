@@ -41,6 +41,7 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         self._num_of_base_methods = num_of_base_methods
         self._rand = Random(42)
         self._max_args = 4
+        self._accumulator_field = "l1"
         self._int_ops = [
             "+",
             "-",
@@ -99,15 +100,15 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         is_unary = operation in self._unary_ops
         return is_unary, operation
 
-    def _combine_expressions(self, method, expr_stack):
-        local = method.get_unused_local()
-        write = Write(local, Literal(self._rand.randint(1, 10)))
+    def _combine_expressions(self, method, expr_stack, add_return=True):
+        field = method.add_field_if_not_present(self._accumulator_field)
+        write = Write(field, Literal(self._rand.randint(1, 10)))
         method.add_statement(write)
 
         while len(expr_stack) > 0:
             is_unary, operation = self._determine_operation(True)
 
-            operands = [Read(local)]
+            operands = [Read(field)]
 
             if not is_unary:
                 operands.append(
@@ -115,10 +116,11 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
                 )
 
             expr = MsgSend(operation, operands)
-            write = Write(local, expr)
+            write = Write(field, expr)
             method.add_statement(write)
 
-        method.add_statement(Return(Read(local)))
+        if add_return:
+            method.add_statement(Return(Read(field)))
 
     def _add_constant_for_div_op(self, operation, expr):
         """
@@ -210,8 +212,9 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
 
         expr_stack = []
         self._construct_calls(expr_stack, [], target_methods)
+        self._combine_expressions(method, expr_stack, False)
 
-        self._combine_expressions(method, expr_stack)
+        method.add_statement(MsgSend("println", [Read(self._accumulator_field)]))
         clazz.add_method(method)
         return method
 
