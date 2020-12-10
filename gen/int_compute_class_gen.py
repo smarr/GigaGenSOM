@@ -41,16 +41,18 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         self._num_of_base_methods = num_of_base_methods
         self._rand = Random(42)
         self._max_args = 4
+        self._accumulator_field = "l1"
+        self._accumulator_get = "getL1"
         self._int_ops = [
             "+",
             "-",
             "*",
-            "/",
-            "%",
+            # "/",
+            # "%",
             "abs",
             "negated",
             "min:",
-            "rem:",
+            # "rem:",
             "as32BitSignedValue",
             "hashcode",
         ]  # "as32BitUnsignedValue",
@@ -99,15 +101,29 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         is_unary = operation in self._unary_ops
         return is_unary, operation
 
-    def _combine_expressions(self, method, expr_stack):
-        local = method.get_unused_local()
-        write = Write(local, Literal(self._rand.randint(1, 10)))
+    def _create_expr_to_ensure_bounds(self, field):
+        upper_bound = Literal(self._rand.randint(1, 100))
+        lower_bound = Literal(self._rand.randint(-100, -1))
+
+        limit_value = MsgSend(
+            "max:", [MsgSend("min:", [Read(field), upper_bound]), lower_bound]
+        )
+
+        write = Write(field, limit_value)
+        return write
+
+    def _combine_expressions(self, method, expr_stack, add_return=True):
+        field = method.add_field_if_not_present(self._accumulator_field)
+        write = Write(field, Literal(self._rand.randint(1, 10)))
         method.add_statement(write)
 
+        num_statements_before_bounding_value = 30
+
+        i = 0
         while len(expr_stack) > 0:
             is_unary, operation = self._determine_operation(True)
 
-            operands = [Read(local)]
+            operands = [Read(field)]
 
             if not is_unary:
                 operands.append(
@@ -115,10 +131,20 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
                 )
 
             expr = MsgSend(operation, operands)
-            write = Write(local, expr)
+            write = Write(field, expr)
             method.add_statement(write)
 
-        method.add_statement(Return(Read(local)))
+            if i >= num_statements_before_bounding_value:
+                method.add_statement(self._create_expr_to_ensure_bounds(field))
+                i = 0
+            else:
+                i += 1
+
+        write_bound = self._create_expr_to_ensure_bounds(field)
+        method.add_statement(write_bound)
+
+        if add_return:
+            method.add_statement(Return(Read(field)))
 
     def _add_constant_for_div_op(self, operation, expr):
         """
@@ -162,7 +188,7 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         # we can't assert that action >= 0, because we may not have args to use
         assert action <= use_literal_probability
 
-        return Literal(self._rand.randint(0, 1000))
+        return Literal(self._rand.randint(0, 300))
 
     def _generate_method(self, clazz, target_methods, index):
         num_targets = self._rand.randint(1, 3)
@@ -210,13 +236,18 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
 
         expr_stack = []
         self._construct_calls(expr_stack, [], target_methods)
+        self._combine_expressions(method, expr_stack, False)
 
-        self._combine_expressions(method, expr_stack)
+        method.add_statement(MsgSend("println", [Read(self._accumulator_field)]))
         clazz.add_method(method)
         return method
 
     def serialize(self, target_directory):
         clazz = Class(self._class_name, object_system.Object, object_system.Empty)
+
+        result_getter = Method(self._accumulator_get, clazz)
+        result_getter.add_statement(Return(Read(self._accumulator_field)))
+        clazz.add_method(result_getter)
 
         method_matrix = [
             [None] * self._num_of_base_methods

@@ -3,8 +3,8 @@ from gen.som.ast.basic import MsgSend, Read
 from gen.som.ast.priority import Priority
 from gen.som.util import combine_pattern_with_args
 
-_max_statements_in_method: int = 30
-_desired_statements_in_method: int = 20
+_max_statements_in_method: int = 20
+_desired_statements_in_method: int = 15
 
 
 def get_max_statements_in_method():
@@ -36,6 +36,12 @@ class Method:
         self._locals = []
 
         self._helper_methods = []
+
+    def get_unused_field(self):
+        return self._holder_class.get_unused_field()
+
+    def add_field_if_not_present(self, field_name):
+        return self._holder_class.add_field_if_not_present(field_name)
 
     def add_locals(self, variables):
         for var in variables:

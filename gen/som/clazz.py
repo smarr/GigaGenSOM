@@ -20,6 +20,17 @@ class Class:
     def get_name(self):
         return self._name
 
+    def get_unused_field(self):
+        num_fields = len(self._fields)
+        new_field = f"f{(num_fields + 1)}"
+        self._fields.append(new_field)
+        return new_field
+
+    def add_field_if_not_present(self, field_name):
+        if field_name not in self._fields:
+            self._fields.append(field_name)
+        return field_name
+
     def add_method(self, method):
         assert self._full_spec is None
 

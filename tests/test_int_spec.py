@@ -148,7 +148,8 @@ def test_add_symmetric(tmp_path):
     | int arg |
     self helper_testIntAddSymmetricLiteral1.
     self helper_testIntAddSymmetricLiteral2.
-    self helper_testIntAddSymmetricLiteral3
+    self helper_testIntAddSymmetricLiteral3.
+    self helper_testIntAddSymmetricLiteral4
   )
 
   testIntAddSymmetricLoop = (
@@ -196,37 +197,12 @@ def test_add_symmetric(tmp_path):
 
     arg := 0.0.
     self expect: int + arg  toEqual:  (arg + int).
-    self expect: int + arg toBeKindOf: arg class.
-
-    arg := -1.2.
-    self expect: int + arg  toEqual:  (arg + int).
-    self expect: int + arg toBeKindOf: arg class.
-
-    arg := 3.3.
-    self expect: int + arg  toEqual:  (arg + int).
-    self expect: int + arg toBeKindOf: arg class.
-
-    int := -1.
-    arg := 0.
-    self expect: int + arg  toEqual:  (arg + int).
     self expect: int + arg toBeKindOf: arg class
   )
 
   helper_testIntAddSymmetricLiteral2 = (
     | int arg |
-    int := -1.
-    arg := -1.
-    self expect: int + arg  toEqual:  (arg + int).
-    self expect: int + arg toBeKindOf: arg class.
-
-    arg := 333.
-    self expect: int + arg  toEqual:  (arg + int).
-    self expect: int + arg toBeKindOf: arg class.
-
-    arg := 0.0.
-    self expect: int + arg  toEqual:  (arg + int).
-    self expect: int + arg toBeKindOf: arg class.
-
+    int := 0.
     arg := -1.2.
     self expect: int + arg  toEqual:  (arg + int).
     self expect: int + arg toBeKindOf: arg class.
@@ -235,7 +211,7 @@ def test_add_symmetric(tmp_path):
     self expect: int + arg  toEqual:  (arg + int).
     self expect: int + arg toBeKindOf: arg class.
 
-    int := 333.
+    int := -1.
     arg := 0.
     self expect: int + arg  toEqual:  (arg + int).
     self expect: int + arg toBeKindOf: arg class.
@@ -247,7 +223,17 @@ def test_add_symmetric(tmp_path):
 
   helper_testIntAddSymmetricLiteral3 = (
     | int arg |
+    self helper_helper_testIntAddSymmetricLiteral31.
+    self helper_helper_testIntAddSymmetricLiteral32
+  )
+
+  helper_testIntAddSymmetricLiteral4 = (
+    | int arg |
     int := 333.
+    arg := -1.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
+
     arg := 333.
     self expect: int + arg  toEqual:  (arg + int).
     self expect: int + arg toBeKindOf: arg class.
@@ -261,6 +247,36 @@ def test_add_symmetric(tmp_path):
     self expect: int + arg toBeKindOf: arg class.
 
     arg := 3.3.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class
+  )
+
+  helper_helper_testIntAddSymmetricLiteral31 = (
+    | int arg |
+    int := -1.
+    arg := 333.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
+
+    arg := 0.0.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
+
+    arg := -1.2.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class.
+
+    arg := 3.3.
+    self expect: int + arg  toEqual:  (arg + int).
+    self expect: int + arg toBeKindOf: arg class
+  )
+
+  helper_helper_testIntAddSymmetricLiteral32 = (
+    | int arg |
+    int := -1.
+    arg := 3.3.
+    int := 333.
+    arg := 0.
     self expect: int + arg  toEqual:  (arg + int).
     self expect: int + arg toBeKindOf: arg class
   )
