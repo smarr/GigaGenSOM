@@ -94,3 +94,9 @@ def test_int_comp(tmp_path):
 
     assert expected_output == actual_output
     assert_runs_to_completion(tmp_path, "IntComp")
+
+
+def test_int_comp_large(tmp_path):
+    int_gen = IntegerComputationClassGenerator("IntComp", 3, 45)
+    int_gen.serialize(tmp_path)
+    assert_runs_to_completion(tmp_path, "IntComp")
