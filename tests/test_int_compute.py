@@ -11,82 +11,95 @@ def test_int_comp(tmp_path):
     expected_output = """IntComp = (
   | l1 |
 
+  getL1 = (
+    ^ l1
+  )
+
   base0: a b: b c: c = (
     l1 := 9.
     l1 := l1 * c negated.
     l1 := l1 abs.
     l1 := l1 - ((a min: b) + (a - a)).
+    l1 := (l1 min: 1) max: -3.
     ^ l1
   )
 
   base1: a b: b c: c d: d = (
-    l1 := 1.
+    l1 := 4.
     l1 := l1 negated.
-    l1 := l1 min: a negated.
-    l1 := l1 as32BitSignedValue.
-    l1 := l1 min: d * 370.
-    l1 := l1 as32BitSignedValue.
-    l1 := l1 * (d * (b + c)) abs as32BitSignedValue.
+    l1 := l1 + (a min: 295).
+    l1 := l1 - (40 + c).
+    l1 := l1 * (d * b - b).
+    l1 := l1 + (172 - d).
+    l1 := (l1 min: 30) max: -88.
+    ^ l1
+  )
+
+  base2: a b: b = (
+    l1 := 10.
+    l1 := l1 negated.
     l1 := l1 abs.
-    l1 := l1 min: b * 344.
+    l1 := l1 - a as32BitSignedValue.
+    l1 := l1 abs.
+    l1 := l1 - (b negated * a).
+    l1 := (l1 min: 82) max: -12.
     ^ l1
   )
 
-  base2: a = (
-    l1 := 2.
-    l1 := l1 negated.
-    l1 := l1 - (a * 699).
+  method0: a b: b = (
+    l1 := 10.
+    l1 := l1 * (self base1: (self base0: (self base2: a b: 161) b: a c: 234) b: b c: b d: b).
+    l1 := (l1 min: 75) max: -49.
     ^ l1
   )
 
-  method0: a = (
+  method1: a b: b c: c = (
     l1 := 9.
-    l1 := l1 - (self base2: a).
-    ^ l1
-  )
-
-  method1: a b: b = (
-    l1 := 5.
-    l1 := l1 + (self base1: (self base0: b b: 580 c: 322) b: b c: 658 d: a).
+    l1 := l1 as32BitSignedValue.
+    l1 := l1 + (self base1: b b: a c: c d: b).
+    l1 := l1 min: (self base0: a b: 216 c: c).
+    l1 := (l1 min: 88) max: -32.
     ^ l1
   )
 
   method2: a b: b c: c d: d = (
-    l1 := 2.
-    l1 := l1 min: (self base1: 408 b: c c: 141 d: d).
+    l1 := 9.
+    l1 := l1 as32BitSignedValue.
+    l1 := l1 as32BitSignedValue.
+    l1 := l1 * (self base1: c b: a c: 134 d: 91).
+    l1 := (l1 min: 82) max: -36.
     ^ l1
   )
 
-  method3: a b: b = (
-    l1 := 2.
-    l1 := l1 * (self method2: a b: b c: a d: a).
-    l1 := l1 - (self method1: 696 b: b).
-    l1 := l1 + (self method0: 881).
+  method3: a b: b c: c = (
+    l1 := 4.
+    l1 := l1 + (self method2: c b: b c: b d: 157).
+    l1 := (l1 min: 73) max: -90.
     ^ l1
   )
 
   method4: a b: b = (
-    l1 := 5.
-    l1 := l1 - (self method1: (self method1: (self method2: a b: b c: 944 d: b) b: a) b: 899).
+    l1 := 8.
+    l1 := l1 as32BitSignedValue.
+    l1 := l1 - (self method0: 272 b: 65).
+    l1 := (l1 min: 68) max: -23.
     ^ l1
   )
 
-  method5: a b: b = (
-    l1 := 2.
-    l1 := l1 as32BitSignedValue.
+  method5: a b: b c: c = (
+    l1 := 6.
     l1 := l1 abs.
-    l1 := l1 + (self method1: a b: a).
+    l1 := l1 abs.
+    l1 := l1 + (self method1: c b: a c: b).
+    l1 := (l1 min: 29) max: -92.
     ^ l1
   )
 
   run = (
-    l1 := 5.
-    l1 := l1 * (self method5: 773 b: 205).
+    l1 := 10.
     l1 := l1 negated.
-    l1 := l1 * (self method4: 621 b: 216).
-    l1 := l1 as32BitSignedValue.
-    l1 := l1 abs.
-    l1 := l1 - (self method3: 969 b: 271).
+    l1 := l1 - (self method5: (self method4: (self method3: 283 b: 112 c: 30) b: 169) b: 248 c: 67).
+    l1 := (l1 min: 61) max: -48.
     l1 println
   )
 
