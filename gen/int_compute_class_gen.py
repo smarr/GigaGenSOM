@@ -42,6 +42,7 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         self._rand = Random(42)
         self._max_args = 4
         self._accumulator_field = "l1"
+        self._accumulator_get = "getL1"
         self._int_ops = [
             "+",
             "-",
@@ -243,6 +244,10 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
 
     def serialize(self, target_directory):
         clazz = Class(self._class_name, object_system.Object, object_system.Empty)
+
+        result_getter = Method(self._accumulator_get, clazz)
+        result_getter.add_statement(Return(Read(self._accumulator_field)))
+        clazz.add_method(result_getter)
 
         method_matrix = [
             [None] * self._num_of_base_methods
