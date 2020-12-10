@@ -100,11 +100,25 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         is_unary = operation in self._unary_ops
         return is_unary, operation
 
+    def _create_expr_to_ensure_bounds(self, field):
+        upper_bound = Literal(self._rand.randint(1, 100))
+        lower_bound = Literal(self._rand.randint(-100, -1))
+
+        limit_value = MsgSend(
+            "max:", [MsgSend("min:", [Read(field), upper_bound]), lower_bound]
+        )
+
+        write = Write(field, limit_value)
+        return write
+
     def _combine_expressions(self, method, expr_stack, add_return=True):
         field = method.add_field_if_not_present(self._accumulator_field)
         write = Write(field, Literal(self._rand.randint(1, 10)))
         method.add_statement(write)
 
+        num_statements_before_bounding_value = 30
+
+        i = 0
         while len(expr_stack) > 0:
             is_unary, operation = self._determine_operation(True)
 
@@ -118,6 +132,15 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
             expr = MsgSend(operation, operands)
             write = Write(field, expr)
             method.add_statement(write)
+
+            if i >= num_statements_before_bounding_value:
+                method.add_statement(self._create_expr_to_ensure_bounds(field))
+                i = 0
+            else:
+                i += 1
+
+        write_bound = self._create_expr_to_ensure_bounds(field)
+        method.add_statement(write_bound)
 
         if add_return:
             method.add_statement(Return(Read(field)))
