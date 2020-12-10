@@ -187,7 +187,7 @@ class IntegerComputationClassGenerator:  # pylint: disable=too-many-instance-att
         # we can't assert that action >= 0, because we may not have args to use
         assert action <= use_literal_probability
 
-        return Literal(self._rand.randint(0, 1000))
+        return Literal(self._rand.randint(0, 300))
 
     def _generate_method(self, clazz, target_methods, index):
         num_targets = self._rand.randint(1, 3)
